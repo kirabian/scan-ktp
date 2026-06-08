@@ -409,8 +409,9 @@ class OcrController extends Controller
             $image = $resized;
         }
 
-        imagefilter($image, IMG_FILTER_GRAYSCALE);
-        imagefilter($image, IMG_FILTER_CONTRAST, -45);
+        // Google OCR works best on the raw color image; these filters were washing out the NIK text
+        // imagefilter($image, IMG_FILTER_GRAYSCALE);
+        // imagefilter($image, IMG_FILTER_CONTRAST, -45);
 
         $processedPath = sys_get_temp_dir() . '/ocr_prepared_' . uniqid() . '.png';
         imagepng($image, $processedPath);
