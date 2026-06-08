@@ -25,6 +25,7 @@
                     hover:file:bg-slate-50 mb-2
                 "/>
                 <div id="ocr-status" class="text-sm font-bold text-blue-600 hidden">Memproses KTP... Mohon tunggu.</div>
+                <div id="ocr-debug-info" class="mt-2 text-xs text-slate-500 font-mono hidden bg-slate-100 p-2.5 rounded-lg max-h-40 overflow-y-auto whitespace-pre-wrap border border-slate-200"></div>
                 <div id="ocr-preview-container" class="mt-4 hidden">
                     <p class="text-xs text-gray-500 mb-1">Preview KTP:</p>
                     <img id="ocr-preview-image" src="" alt="Preview KTP" class="max-h-48 rounded-lg shadow-sm border border-gray-200">
@@ -389,6 +390,12 @@
                     statusEl.innerText = "Mengompresi gambar...";
                     statusEl.className = "text-sm font-bold text-blue-600";
 
+                    const debugEl = document.getElementById('ocr-debug-info');
+                    if (debugEl) {
+                        debugEl.innerText = "";
+                        debugEl.classList.add('hidden');
+                    }
+
                     try {
                         const compressedDataUrl = await compressImage(file);
                         const resImage = await fetch(compressedDataUrl);
@@ -437,11 +444,29 @@
                                 }
                             }
 
-                            statusEl.innerText = "✅ Semua data KTP berhasil terisi otomatis!";
-                            statusEl.className = "text-sm font-bold text-green-600";
+                            // Tampilkan raw OCR jika ada untuk membantu debug
+                            if (debugEl && result.raw_ocr_text) {
+                                debugEl.innerText = "Raw OCR Text:\n" + result.raw_ocr_text;
+                                debugEl.classList.remove('hidden');
+                            }
+
+                            if (!result.nik) {
+                                statusEl.innerText = "⚠️ Data KTP terbaca, tapi NIK gagal diekstrak. Silakan isi NIK secara manual.";
+                                statusEl.className = "text-sm font-bold text-orange-600";
+                            } else if (result.nik.startsWith('RAW:')) {
+                                statusEl.innerText = "⚠️ NIK terbaca kurang jelas (" + result.nik + "). Silakan periksa kembali.";
+                                statusEl.className = "text-sm font-bold text-orange-600";
+                            } else {
+                                statusEl.innerText = "✅ Semua data KTP berhasil terisi otomatis!";
+                                statusEl.className = "text-sm font-bold text-green-600";
+                            }
                         } else {
                             statusEl.innerText = "⚠️ Gagal membaca data KTP. Silakan ketik secara manual.";
                             statusEl.className = "text-sm font-bold text-orange-600";
+                            if (debugEl && result.raw_ocr_text) {
+                                debugEl.innerText = "Raw Response:\n" + result.raw_ocr_text;
+                                debugEl.classList.remove('hidden');
+                            }
                         }
                     } catch (err) {
                         console.error(err);
@@ -466,6 +491,12 @@
                 
                 const statusEl = document.getElementById('ocr-status');
                 if (statusEl) statusEl.classList.add('hidden');
+
+                const debugEl = document.getElementById('ocr-debug-info');
+                if (debugEl) {
+                    debugEl.innerText = '';
+                    debugEl.classList.add('hidden');
+                }
 
                 const ocrInput = document.getElementById('ocr-ktp');
                 if (ocrInput) ocrInput.value = '';
