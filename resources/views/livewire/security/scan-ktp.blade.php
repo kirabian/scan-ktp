@@ -30,7 +30,8 @@
                     </label>
                     
                     <div id="loading-indicator" class="hidden mt-4">
-                        <div class="inline-flex items-center text-blue-600 font-medium">Memproses OCR KTP...</div>
+                        <div id="ocr-status-text" class="inline-flex items-center text-blue-600 font-medium">Memproses OCR KTP...</div>
+                        <div id="ocr-debug-info" class="mt-2 text-xs text-slate-500 font-mono hidden bg-slate-100 p-2.5 rounded-lg max-h-40 overflow-y-auto whitespace-pre-wrap border border-slate-200 text-left"></div>
                     </div>
                 </div>
             @endif
@@ -141,12 +142,26 @@
                     const file = e.target.files[0];
                     if (!file) return;
 
+                    const statusText = document.getElementById('ocr-status-text');
+                    const debugEl = document.getElementById('ocr-debug-info');
+                    if (statusText) {
+                        statusText.innerText = "Mengompresi gambar...";
+                        statusText.className = "inline-flex items-center text-blue-600 font-medium";
+                    }
+                    if (debugEl) {
+                        debugEl.innerText = "";
+                        debugEl.classList.add('hidden');
+                    }
                     document.getElementById('loading-indicator').classList.remove('hidden');
 
                     try {
                         const compressedDataUrl = await compressImage(file);
                         const resImage = await fetch(compressedDataUrl);
                         const blob = await resImage.blob();
+
+                        if (statusText) {
+                            statusText.innerText = "Mengunggah & Memproses OCR...";
+                        }
 
                         const formData = new FormData();
                         formData.append('foto_ktp', blob, 'ktp_compressed.jpg');
@@ -161,17 +176,27 @@
                         });
 
                         const result = await response.json();
+
+                        if (debugEl && result.raw_ocr_text) {
+                            debugEl.innerText = "Raw OCR Text:\n" + result.raw_ocr_text;
+                            debugEl.classList.remove('hidden');
+                        }
                         
                         if (result.success && result.nik) {
                             Livewire.dispatch('nikScanned', { nik: result.nik });
                         } else {
-                            alert("Gagal membaca NIK otomatis. Silakan posisikan KTP lebih dekat tanpa silau lampu.");
-                            document.getElementById('loading-indicator').classList.add('hidden');
+                            if (statusText) {
+                                statusText.innerText = "⚠️ Gagal membaca NIK otomatis. Silakan coba lagi.";
+                                statusText.className = "inline-flex items-center text-orange-600 font-medium";
+                            }
                             ktpInput.value = '';
                         }
                     } catch (err) {
                         console.error(err);
-                        document.getElementById('loading-indicator').classList.add('hidden');
+                        if (statusText) {
+                            statusText.innerText = "Error: " + err.message;
+                            statusText.className = "inline-flex items-center text-red-600 font-medium";
+                        }
                     }
                 });
             }
@@ -206,6 +231,20 @@
                 setupEmergencyCamera();
             });
             Livewire.on('resetCamera', () => { 
+                const debugEl = document.getElementById('ocr-debug-info');
+                if (debugEl) {
+                    debugEl.innerText = "";
+                    debugEl.classList.add('hidden');
+                }
+                const statusText = document.getElementById('ocr-status-text');
+                if (statusText) {
+                    statusText.innerText = "Memproses OCR KTP... Mohon tunggu.";
+                    statusText.className = "inline-flex items-center text-blue-600 font-medium";
+                }
+                const indicator = document.getElementById('loading-indicator');
+                if (indicator) {
+                    indicator.classList.add('hidden');
+                }
                 setTimeout(() => {
                     setupKtpScanner(); 
                     setupEmergencyCamera();

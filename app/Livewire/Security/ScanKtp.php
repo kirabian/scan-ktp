@@ -26,7 +26,7 @@ class ScanKtp extends Component
 
     public function nikScanned($nik)
     {
-        $this->nik = $nik;
+        $this->nik = str_replace(' ', '', trim(str_replace('RAW:', '', $nik)));
         $this->errorMessage = '';
         $this->warningMessage = '';
         $this->statusPengambilan = null;
