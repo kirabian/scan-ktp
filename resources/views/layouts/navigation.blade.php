@@ -34,6 +34,9 @@
                     <x-nav-link :href="route('admin.warga-list')" :active="request()->routeIs('admin.warga-list')">
                         {{ __('Data Warga') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('admin.sedekah-list')" :active="request()->routeIs('admin.sedekah-list')">
+                        {{ __('Data Sedekah') }}
+                    </x-nav-link>
                     @endif
                 </div>
             </div>
@@ -87,25 +90,28 @@
         <div class="pt-2 pb-3 space-y-1">
             @if(Auth::user()->isSecurity() || Auth::user()->isAdmin())
             <x-responsive-nav-link :href="route('security.scan')" :active="request()->routeIs('security.scan')">
-                📷 {{ __('Scan KTP') }}
+                {{ __('Scan KTP') }}
             </x-responsive-nav-link>
             @endif
 
             @if(Auth::user()->isData() || Auth::user()->isAdmin())
             <x-responsive-nav-link :href="route('data.warga')" :active="request()->routeIs('data.warga')">
-                📝 {{ __('Input Data Warga') }}
+                {{ __('Input Data Warga') }}
             </x-responsive-nav-link>
             @endif
 
             @if(Auth::user()->isAdmin())
             <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
-                📊 {{ __('Dashboard Admin') }}
+                {{ __('Dashboard Admin') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('admin.users')" :active="request()->routeIs('admin.users')">
-                👥 {{ __('Data User') }}
+                {{ __('Data User') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('admin.warga-list')" :active="request()->routeIs('admin.warga-list')">
-                📂 {{ __('Data Warga') }}
+                {{ __('Data Warga') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('admin.sedekah-list')" :active="request()->routeIs('admin.sedekah-list')">
+                {{ __('Data Sedekah') }}
             </x-responsive-nav-link>
             @endif
         </div>

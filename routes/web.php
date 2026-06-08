@@ -6,6 +6,7 @@ use App\Http\Controllers\SecureImageController;
 use App\Livewire\Admin\Dashboard;
 use App\Livewire\Admin\UserManage;
 use App\Livewire\Admin\WargaList;
+use App\Livewire\Admin\SedekahList;
 use App\Livewire\Data\WargaForm;
 use App\Livewire\Security\ScanKtp;
 use Illuminate\Support\Facades\Route;
@@ -18,9 +19,9 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     
     // Default dashboard redirect based on role
-    Route::get('/dashboard', function () {
+    Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
         /** @var \App\Models\User $user */
-        $user = auth()->user();
+        $user = $request->user();
         if ($user->isAdmin()) {
             return redirect()->route('admin.dashboard');
         } elseif ($user->isSecurity()) {
@@ -41,6 +42,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/dashboard', Dashboard::class)->name('admin.dashboard');
         Route::get('/admin/users', UserManage::class)->name('admin.users');
         Route::get('/admin/warga', WargaList::class)->name('admin.warga-list');
+        Route::get('/admin/sedekah', SedekahList::class)->name('admin.sedekah-list');
     });
 
     // Security routes

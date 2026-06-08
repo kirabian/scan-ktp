@@ -16,9 +16,11 @@ class ScanKtp extends Component
     public $nik;
     public $warga = null;
     public $errorMessage = '';
+    public $warningMessage = '';
     public $statusPengambilan = null;
     public $showDoubleWarning = false;
     public $fotoWajahDarurat = null;
+    public $showConfirmation = false;
 
     protected $listeners = ['nikScanned'];
 
@@ -26,9 +28,11 @@ class ScanKtp extends Component
     {
         $this->nik = $nik;
         $this->errorMessage = '';
+        $this->warningMessage = '';
         $this->statusPengambilan = null;
         $this->showDoubleWarning = false;
         $this->fotoWajahDarurat = null;
+        $this->showConfirmation = false;
 
         $this->warga = Warga::where('nik', $this->nik)->first();
 
@@ -44,18 +48,27 @@ class ScanKtp extends Component
                                          ->first();
 
         if ($historiTerakhir) {
-            $this->statusPengambilan = 'Terakhir dapat sedekah pada: ' . $historiTerakhir->waktu_ambil->translatedFormat('l, d F Y H:i');
+            $this->statusPengambilan = 'Terakhir dapat sedekah: ' . $historiTerakhir->waktu_ambil->translatedFormat('d M Y H:i');
             
             if ($historiTerakhir->waktu_ambil->isSameDay($today)) {
                 $this->showDoubleWarning = true;
-                $this->errorMessage = '⚠️ Warga ini sudah di-scan hari ini jam ' . $historiTerakhir->waktu_ambil->format('H:i') . '. Yakin mau dilanjutkan lagi?';
+                $this->warningMessage = 'Sudah di scan hari ini jam: ' . $historiTerakhir->waktu_ambil->format('H:i') . '. Yakin mau dilanjutkan lagi?';
             }
+        }
+    }
+
+    public function handleMasuk()
+    {
+        if ($this->showDoubleWarning) {
+            $this->showConfirmation = true;
+        } else {
+            $this->catatPengambilanNormal();
         }
     }
 
     public function resetScan()
     {
-        $this->reset(['nik', 'warga', 'errorMessage', 'statusPengambilan', 'showDoubleWarning', 'fotoWajahDarurat']);
+        $this->reset(['nik', 'warga', 'errorMessage', 'warningMessage', 'statusPengambilan', 'showDoubleWarning', 'fotoWajahDarurat', 'showConfirmation']);
         $this->dispatch('resetCamera');
     }
 
