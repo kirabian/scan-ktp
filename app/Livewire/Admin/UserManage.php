@@ -36,7 +36,7 @@ class UserManage extends Component
 
         return view('livewire.admin.user-manage', [
             'users' => $users,
-        ])->layout('layouts.app', ['header' => '<h2 class="font-semibold text-xl text-gray-800 leading-tight">Manajemen User</h2>']);
+        ])->layout('layouts.app');
     }
 
     public function create()

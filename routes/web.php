@@ -3,6 +3,11 @@
 use App\Http\Controllers\OcrController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecureImageController;
+use App\Livewire\Admin\Dashboard;
+use App\Livewire\Admin\UserManage;
+use App\Livewire\Admin\WargaList;
+use App\Livewire\Data\WargaForm;
+use App\Livewire\Security\ScanKtp;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -14,6 +19,7 @@ Route::middleware('auth')->group(function () {
     
     // Default dashboard redirect based on role
     Route::get('/dashboard', function () {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
         if ($user->isAdmin()) {
             return redirect()->route('admin.dashboard');
@@ -32,19 +38,19 @@ Route::middleware('auth')->group(function () {
 
     // Admin routes
     Route::middleware('role:admin')->group(function () {
-        Route::get('/admin/dashboard', \App\Livewire\Admin\Dashboard::class)->name('admin.dashboard');
-        Route::get('/admin/users', \App\Livewire\Admin\UserManage::class)->name('admin.users');
-        Route::get('/admin/warga', \App\Livewire\Admin\WargaList::class)->name('admin.warga-list');
+        Route::get('/admin/dashboard', Dashboard::class)->name('admin.dashboard');
+        Route::get('/admin/users', UserManage::class)->name('admin.users');
+        Route::get('/admin/warga', WargaList::class)->name('admin.warga-list');
     });
 
     // Security routes
     Route::middleware('role:admin,security')->group(function () {
-        Route::get('/security/scan', \App\Livewire\Security\ScanKtp::class)->name('security.scan');
+        Route::get('/security/scan', ScanKtp::class)->name('security.scan');
     });
 
     // Data routes
     Route::middleware('role:admin,data')->group(function () {
-        Route::get('/data/warga', \App\Livewire\Data\WargaForm::class)->name('data.warga');
+        Route::get('/data/warga', WargaForm::class)->name('data.warga');
     });
 
     // OCR Route (server-side Tesseract)

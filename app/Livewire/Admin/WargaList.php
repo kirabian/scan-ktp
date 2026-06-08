@@ -24,7 +24,7 @@ class WargaList extends Component
 
         return view('livewire.admin.warga-list', [
             'wargas' => $wargas,
-        ])->layout('layouts.app', ['header' => '<h2 class="font-semibold text-xl text-gray-800 leading-tight">Data Warga</h2>']);
+        ])->layout('layouts.app');
     }
 
     public function viewDetails($id)
