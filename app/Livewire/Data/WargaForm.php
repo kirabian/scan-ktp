@@ -50,8 +50,8 @@ class WargaForm extends Component
         'alamat_ktp' => 'required|string',
         'no_wa_hp' => 'required|string',
         'pekerjaan' => 'required|string',
-        'foto_ktp' => 'required|image|max:10240',
-        'foto_wajah' => 'required|image|max:10240',
+        'foto_ktp' => 'required|image|max:30720',
+        'foto_wajah' => 'required|image|max:30720',
     ];
 
     public function updatedIsDomisiliSesuaiKtp($value)

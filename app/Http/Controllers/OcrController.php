@@ -11,7 +11,7 @@ class OcrController extends Controller
     public function processKtp(Request $request)
     {
         $request->validate([
-            'foto_ktp' => 'required|image|max:10240', // max 10MB
+            'foto_ktp' => 'required|image|max:30720', // max 30MB
         ]);
 
         $file = $request->file('foto_ktp');

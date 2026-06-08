@@ -41,13 +41,13 @@ class ScanKtp extends Component
     {
         $this->validate([
             'nik' => 'required|digits:16',
-            'foto_ktp' => 'required|image|max:10240', // max 10MB from camera
+            'foto_ktp' => 'required|image|max:30720', // max 30MB from camera
         ], [
             'nik.required' => 'NIK wajib diisi.',
             'nik.digits' => 'NIK harus tepat 16 digit angka.',
             'foto_ktp.required' => 'Foto KTP wajib diambil.',
             'foto_ktp.image' => 'File harus berupa gambar.',
-            'foto_ktp.max' => 'Ukuran foto maksimal 10MB.',
+            'foto_ktp.max' => 'Ukuran foto maksimal 30MB.',
         ]);
 
         $this->isProcessing = true;
