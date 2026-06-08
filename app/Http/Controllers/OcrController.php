@@ -175,7 +175,7 @@ class OcrController extends Controller
                     $usedIndices[] = $i;
 
                     // Jika ada teks gabungan di baris JK
-                    $sisaTeks = trim(preg_replace('/(LAKI[\-\s]*LAKI|PEREMPUAN|Gol\.?\s*Darah|Gol|Darah|[:\-\.\s]*(AB|O|A|B)?\b)/i', '', $val));
+                    $sisaTeks = trim(preg_replace('/(LAKI[\-\s]*LAKI|LAKI[\-\s]*LAKE|LAKILAKE|LAKILAKI|LAKI|PEREMPUAN|Gol\.?\s*Darah|Gol|Darah|[:\-\.\s]*(AB|O|A|B)?\b)/i', '', $val));
                     if (strlen($sisaTeks) > 3) {
                         $jalan .= ' ' . $sisaTeks;
                     }
