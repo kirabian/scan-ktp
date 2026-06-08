@@ -1,28 +1,28 @@
 <div class="max-w-3xl mx-auto py-6 sm:px-6 lg:px-8">
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div class="px-4 py-5 sm:px-6 bg-gray-50 flex justify-between items-center">
+    <div class="bg-white border border-slate-200 shadow-sm sm:rounded-2xl overflow-hidden">
+        <div class="px-6 py-5 bg-white border-b border-slate-100 flex justify-between items-center">
             <div>
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Registrasi Warga Baru</h3>
-                <p class="mt-1 max-w-2xl text-sm text-gray-500">Input data warga untuk penerimaan sedekah.</p>
+                <h3 class="text-xl leading-6 font-bold text-slate-800">Registrasi Warga Baru</h3>
+                <p class="mt-1 max-w-2xl text-sm text-slate-500">Input data warga untuk pendataan sistem administrasi.</p>
             </div>
         </div>
 
-        <div class="p-6 border-t border-gray-200">
+        <div class="p-6">
             @if($successMessage)
                 <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
                     <span class="block sm:inline">{{ $successMessage }}</span>
                 </div>
             @endif
 
-            <div wire:ignore class="mb-6 bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <h4 class="text-md font-medium text-blue-800 mb-2">Scan KTP Awal via OCR</h4>
-                <p class="text-sm text-blue-600 mb-4">Foto KTP untuk mengisi seluruh form secara otomatis.</p>
+            <div wire:ignore class="mb-6 bg-slate-50 p-5 rounded-xl border border-slate-200">
+                <h4 class="text-sm font-bold text-slate-700 mb-1">Scan KTP Otomatis (OCR)</h4>
+                <p class="text-xs text-slate-500 mb-4">Unggah atau foto KTP untuk mengisi form ini secara instan.</p>
                 <input type="file" id="ocr-ktp" accept="image/*" capture="environment" class="block w-full text-sm text-gray-500
                     file:mr-4 file:py-2 file:px-4
-                    file:rounded-full file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-blue-50 file:text-blue-700
-                    hover:file:bg-blue-100 mb-2
+                    file:rounded-lg file:border-0
+                    file:text-xs file:font-medium
+                    file:bg-white file:text-slate-700 file:border file:border-slate-300 file:shadow-sm
+                    hover:file:bg-slate-50 mb-2
                 "/>
                 <div id="ocr-status" class="text-sm font-bold text-blue-600 hidden">Memproses KTP... Mohon tunggu.</div>
                 <div id="ocr-preview-container" class="mt-4 hidden">
@@ -31,12 +31,35 @@
                 </div>
             </div>
 
-            <form wire:submit.prevent="submit">
+            <form id="wargaForm" wire:submit.prevent="submit">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="col-span-1 md:col-span-2">
                         <label for="nik" class="block text-sm font-medium text-gray-700">NIK (16 Digit)</label>
-                        <input type="text" wire:model="nik" id="nik" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
+                        <input type="text" wire:model.live.debounce.500ms="nik" id="nik" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
                         @error('nik') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        
+                        @if($existingWarga)
+                            <div class="mt-2 bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
+                                <div class="flex items-start">
+                                    <div class="ml-3">
+                                        <p class="text-sm text-red-700 mb-1">
+                                            <span class="font-bold">Peringatan:</span> NIK ini sudah terdaftar atas nama <b>{{ $existingWarga->nama }}</b>. Data tidak bisa diinput ulang.
+                                        </p>
+                                        <p class="text-xs text-red-600 mb-2">
+                                            <b>Alamat Domisili:</b> 
+                                            @if($existingWarga->is_domisili_sesuai_ktp)
+                                                {{ $existingWarga->alamat_ktp }} (Sesuai KTP)
+                                            @else
+                                                {{ $existingWarga->alamat_detail_domisili }}, {{ $existingWarga->kel_desa_domisili }}, {{ $existingWarga->kecamatan_domisili }}, {{ $existingWarga->kota_kab_domisili }}, {{ $existingWarga->provinsi_domisili }}
+                                            @endif
+                                        </p>
+                                        <div class="mt-2">
+                                            <button type="button" wire:click="viewExistingWarga" class="text-sm font-bold text-red-800 hover:text-red-900 underline">Lihat Detail Data NIK Ini</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     <div class="col-span-1 md:col-span-2">
@@ -87,6 +110,74 @@
                         </div>
                     </div>
 
+                    @if(!$is_domisili_sesuai_ktp)
+                    <div class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                        <div class="col-span-1 md:col-span-2 mb-2">
+                            <p class="text-sm font-medium text-yellow-800">Silakan isi alamat domisili secara manual karena berbeda dengan KTP.</p>
+                        </div>
+
+                        <div>
+                            <label for="selectedProvinsi" class="block text-sm font-medium text-gray-700">Provinsi <span wire:loading wire:target="updatedIsDomisiliSesuaiKtp" class="text-blue-500 text-xs">(Loading...)</span></label>
+                            <select wire:model.live="selectedProvinsi" id="selectedProvinsi" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                <option value="">Pilih Provinsi</option>
+                                @foreach($provinces as $prov)
+                                    <option value="{{ $prov['id'] }}|{{ $prov['nama'] }}">{{ $prov['nama'] }}</option>
+                                @endforeach
+                            </select>
+                            @error('selectedProvinsi') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div>
+                            <label for="selectedKota" class="block text-sm font-medium text-gray-700">Kota/Kabupaten <span wire:loading wire:target="selectedProvinsi" class="text-blue-500 text-xs">(Loading...)</span></label>
+                            <select wire:model.live="selectedKota" id="selectedKota" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" @if(!$selectedProvinsi) disabled @endif>
+                                <option value="">Pilih Kota/Kabupaten</option>
+                                @foreach($cities as $city)
+                                    <option value="{{ $city['id'] }}|{{ $city['nama'] }}">{{ $city['nama'] }}</option>
+                                @endforeach
+                            </select>
+                            @error('selectedKota') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div>
+                            <label for="selectedKecamatan" class="block text-sm font-medium text-gray-700">Kecamatan <span wire:loading wire:target="selectedKota" class="text-blue-500 text-xs">(Loading...)</span></label>
+                            <select wire:model.live="selectedKecamatan" id="selectedKecamatan" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" @if(!$selectedKota) disabled @endif>
+                                <option value="">Pilih Kecamatan</option>
+                                @foreach($districts as $district)
+                                    <option value="{{ $district['id'] }}|{{ $district['nama'] }}">{{ $district['nama'] }}</option>
+                                @endforeach
+                            </select>
+                            @error('selectedKecamatan') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div>
+                            <label for="selectedKelurahan" class="block text-sm font-medium text-gray-700">Kelurahan/Desa <span wire:loading wire:target="selectedKecamatan" class="text-blue-500 text-xs">(Loading...)</span></label>
+                            <select wire:model="selectedKelurahan" id="selectedKelurahan" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" @if(!$selectedKecamatan) disabled @endif>
+                                <option value="">Pilih Kelurahan/Desa</option>
+                                @foreach($villages as $village)
+                                    <option value="{{ $village['id'] }}|{{ $village['nama'] }}">{{ $village['nama'] }}</option>
+                                @endforeach
+                            </select>
+                            @error('selectedKelurahan') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="col-span-1 md:col-span-2">
+                            <label for="alamat_detail_domisili" class="block text-sm font-medium text-gray-700">Detail Alamat Domisili (Jalan, Blok, No Rumah)</label>
+                            <textarea wire:model="alamat_detail_domisili" id="alamat_detail_domisili" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Contoh: Jl. Merdeka No 123"></textarea>
+                            @error('alamat_detail_domisili') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div>
+                            <label for="rt_rw_domisili" class="block text-sm font-medium text-gray-700">RT/RW</label>
+                            <input type="text" wire:model="rt_rw_domisili" id="rt_rw_domisili" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="001/002">
+                        </div>
+
+                        <div>
+                            <label for="kode_pos_domisili" class="block text-sm font-medium text-gray-700">Kode Pos</label>
+                            <input type="text" wire:model="kode_pos_domisili" id="kode_pos_domisili" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                        </div>
+                    </div>
+                    @endif
+
                     <div class="col-span-1 md:col-span-2 mt-4">
                         <h4 class="text-md font-medium text-gray-900 border-b pb-2 mb-4">Kontak & Pekerjaan</h4>
                     </div>
@@ -115,12 +206,87 @@
                 </div>
 
                 <div class="mt-8 border-t border-gray-200 pt-5">
-                    <button type="submit" class="w-full inline-flex justify-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                    <button type="submit" @if($existingWarga) disabled @endif class="w-full inline-flex justify-center py-3.5 px-4 border border-transparent shadow-sm text-sm font-bold rounded-xl text-white bg-blue-600 hover:bg-blue-700 transition-colors @if($existingWarga) opacity-50 cursor-not-allowed @endif">
                         Simpan Data Warga
                     </button>
                 </div>
             </form>
         </div>
+        @if($showExistingWargaModal && $existingWarga)
+        <div class="fixed z-50 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="flex justify-between items-center mb-5 border-b pb-2">
+                            <h3 class="text-xl leading-6 font-bold text-gray-900" id="modal-title">
+                                Detail Data Warga (Duplikat)
+                            </h3>
+                            <button type="button" wire:click="closeExistingWargaModal" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Info -->
+                            <div>
+                                <h4 class="font-semibold text-gray-700 border-b pb-1 mb-3">Informasi Pribadi</h4>
+                                <table class="w-full text-sm mb-4">
+                                    <tbody>
+                                        <tr><td class="py-1 font-medium text-gray-600 w-1/3">NIK</td><td class="py-1 font-bold">{{ $existingWarga->nik }}</td></tr>
+                                        <tr><td class="py-1 font-medium text-gray-600">Nama</td><td class="py-1">{{ $existingWarga->nama }}</td></tr>
+                                        <tr><td class="py-1 font-medium text-gray-600">No HP</td><td class="py-1">{{ $existingWarga->no_wa_hp }}</td></tr>
+                                    </tbody>
+                                </table>
+                                <h4 class="font-semibold text-gray-700 border-b pb-1 mb-3">Alamat KTP</h4>
+                                <p class="text-sm mb-4">{{ $existingWarga->alamat_ktp }}</p>
+                                
+                                <h4 class="font-semibold text-gray-700 border-b pb-1 mb-3">Alamat Domisili</h4>
+                                @if($existingWarga->is_domisili_sesuai_ktp)
+                                    <p class="text-sm italic text-gray-500 mb-4">Sesuai KTP</p>
+                                @else
+                                    <p class="text-sm mb-4">
+                                        {{ $existingWarga->alamat_detail_domisili }}<br>
+                                        Kel/Desa: {{ $existingWarga->kel_desa_domisili }}, Kec: {{ $existingWarga->kecamatan_domisili }}<br>
+                                        Kab/Kota: {{ $existingWarga->kota_kab_domisili }}, Prov: {{ $existingWarga->provinsi_domisili }}<br>
+                                        Kode Pos: {{ $existingWarga->kode_pos_domisili }}
+                                    </p>
+                                @endif
+
+                                <h4 class="font-semibold text-gray-700 border-b pb-1 mb-3">Pekerjaan</h4>
+                                <p class="text-sm">{{ $existingWarga->pekerjaan }}</p>
+                            </div>
+                            <!-- Photos -->
+                            <div>
+                                <h4 class="font-semibold text-gray-700 border-b pb-1 mb-3">Foto Bukti</h4>
+                                <div class="bg-gray-100 rounded border border-gray-200 h-32 flex items-center justify-center mb-4 overflow-hidden">
+                                    @if($existingWarga->foto_ktp_path)
+                                        <img src="{{ route('secure.image', ['folder' => 'ktp', 'filename' => basename($existingWarga->foto_ktp_path)]) }}" alt="Foto KTP" class="max-h-full">
+                                    @else
+                                        <span class="text-xs text-gray-400">Tidak ada foto KTP</span>
+                                    @endif
+                                </div>
+                                <div class="bg-gray-100 rounded border border-gray-200 h-32 flex items-center justify-center overflow-hidden">
+                                    @if($existingWarga->foto_wajah_path)
+                                        <img src="{{ route('secure.image', ['folder' => 'wajah', 'filename' => basename($existingWarga->foto_wajah_path)]) }}" alt="Foto Wajah" class="max-h-full">
+                                    @else
+                                        <span class="text-xs text-gray-400">Tidak ada foto Wajah</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button type="button" wire:click="closeExistingWargaModal" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:w-auto sm:text-sm">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 
     <script>
@@ -284,6 +450,29 @@
                     }
                 });
             }
+
+            // Listener ketika form berhasil disimpan
+            Livewire.on('warga-saved', () => {
+                // Reset form HTML secara menyeluruh
+                const form = document.getElementById('wargaForm');
+                if (form) form.reset();
+
+                // Tampilkan Popup Alert
+                alert("✅ BERHASIL! Data warga telah berhasil disimpan ke dalam database.\n\nForm isian kini telah direset kembali.");
+                
+                // Reset elemen UI manual (OCR)
+                const previewContainer = document.getElementById('ocr-preview-container');
+                if (previewContainer) previewContainer.classList.add('hidden');
+                
+                const statusEl = document.getElementById('ocr-status');
+                if (statusEl) statusEl.classList.add('hidden');
+
+                const ocrInput = document.getElementById('ocr-ktp');
+                if (ocrInput) ocrInput.value = '';
+
+                // Scroll kembali ke atas
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
         });
     </script>
 </div>

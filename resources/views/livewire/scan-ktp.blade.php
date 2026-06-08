@@ -4,12 +4,12 @@
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     @endassets
 
-    <div class="min-h-screen bg-gradient-to-b from-blue-50 to-white pb-8">
+    <div class="min-h-screen bg-slate-50 pb-8">
         {{-- Header --}}
-        <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-4 py-5 shadow-lg">
+        <div class="bg-blue-700 text-white px-4 py-5 shadow-sm">
             <div class="max-w-lg mx-auto">
-                <h1 class="text-xl font-bold text-center">📷 Scan KTP Sembako</h1>
-                <p class="text-blue-200 text-xs text-center mt-1">Arahkan kamera ke KTP warga</p>
+                <h1 class="text-xl font-bold text-center">Sistem Scan KTP</h1>
+                <p class="text-blue-100 text-xs text-center mt-1">Arahkan kamera ke KTP warga</p>
             </div>
         </div>
 
@@ -24,11 +24,17 @@
                 @endif">
                 <div class="flex items-start gap-3">
                     @if($messageType === 'success')
-                        <span class="text-3xl">✅</span>
+                        <span class="text-3xl text-green-600">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        </span>
                     @elseif($messageType === 'warning')
-                        <span class="text-3xl">⚠️</span>
+                        <span class="text-3xl text-yellow-500">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        </span>
                     @else
-                        <span class="text-3xl">❌</span>
+                        <span class="text-3xl text-red-600">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </span>
                     @endif
                     <div>
                         <p class="font-semibold text-sm
@@ -45,7 +51,7 @@
                 </div>
                 @if($messageType === 'success' || $messageType === 'error')
                 <button wire:click="resetScan" class="mt-3 w-full bg-blue-600 text-white rounded-lg py-2.5 text-sm font-semibold hover:bg-blue-700 transition-colors">
-                    🔄 Scan KTP Berikutnya
+                    Scan KTP Berikutnya
                 </button>
                 @endif
             </div>
@@ -55,7 +61,7 @@
             @if(!$message || $messageType === 'warning')
             <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
                 <div class="bg-gray-800 px-4 py-3 flex items-center justify-between">
-                    <span class="text-white text-sm font-medium">📸 Ambil Foto KTP</span>
+                    <span class="text-white text-sm font-medium">Ambil Foto KTP</span>
                     <span id="ocrStatus" class="text-xs text-gray-400">Siap</span>
                 </div>
 
@@ -82,8 +88,8 @@
 
                 {{-- Capture Button --}}
                 <div class="p-4 bg-gray-50">
-                    <label for="ktpFileInput" class="block w-full bg-blue-600 text-white rounded-xl py-3 text-center text-sm font-semibold cursor-pointer hover:bg-blue-700 active:bg-blue-800 transition-colors shadow-md">
-                        📷 Ambil Foto KTP dari Kamera
+                    <label for="ktpFileInput" class="block w-full bg-blue-600 text-white rounded-xl py-3 text-center text-sm font-semibold cursor-pointer hover:bg-blue-700 active:bg-blue-800 transition-colors shadow-sm">
+                        Ambil Foto KTP dari Kamera
                     </label>
                     <input
                         type="file"
@@ -115,8 +121,8 @@
             <div id="reviewForm" class="hidden">
                 <form wire:submit="verifikasiDanKonfirmasi">
                     <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                        <div class="bg-gradient-to-r from-green-600 to-green-700 px-4 py-3">
-                            <span class="text-white text-sm font-medium">📝 Review Data KTP</span>
+                        <div class="bg-green-600 px-4 py-3">
+                            <span class="text-white text-sm font-medium">Review Data KTP</span>
                         </div>
 
                         <div class="p-4 space-y-3">
@@ -217,10 +223,10 @@
                             <button
                                 type="submit"
                                 wire:loading.attr="disabled"
-                                class="w-full bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl py-3.5 text-sm font-bold shadow-lg hover:from-green-700 hover:to-green-800 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                class="w-full bg-green-600 text-white rounded-xl py-3.5 text-sm font-bold shadow hover:bg-green-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <span wire:loading.remove wire:target="verifikasiDanKonfirmasi">
-                                    ✅ Verifikasi & Konfirmasi Ambil
+                                    Verifikasi & Konfirmasi Ambil
                                 </span>
                                 <span wire:loading wire:target="verifikasiDanKonfirmasi" class="flex items-center justify-center gap-2">
                                     <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
@@ -237,7 +243,7 @@
                                 wire:click="resetScan"
                                 class="w-full mt-2 bg-gray-200 text-gray-700 rounded-xl py-2.5 text-sm font-medium hover:bg-gray-300 transition-colors"
                             >
-                                🔄 Ulang Scan
+                                Ulang Scan
                             </button>
                         </div>
                     </div>
@@ -247,8 +253,8 @@
             {{-- Manual NIK Entry (always accessible) --}}
             @if(!$message || $messageType === 'warning')
             <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <button onclick="toggleManualEntry()" class="w-full px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors">
-                    <span class="text-sm font-medium text-gray-700">⌨️ Input NIK Manual (tanpa OCR)</span>
+                <button onclick="toggleManualEntry()" class="w-full px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-b border-gray-100">
+                    <span class="text-sm font-medium text-gray-700">Input NIK Manual (tanpa OCR)</span>
                     <svg id="manualChevron" class="w-5 h-5 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
@@ -265,7 +271,7 @@
                         class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-lg font-mono font-bold tracking-wider text-center focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
                     <button onclick="useManualNik()" class="w-full mt-3 bg-blue-600 text-white rounded-xl py-3 text-sm font-semibold hover:bg-blue-700 transition-colors">
-                        ➡️ Gunakan NIK Ini
+                        Gunakan NIK Ini
                     </button>
                 </div>
             </div>

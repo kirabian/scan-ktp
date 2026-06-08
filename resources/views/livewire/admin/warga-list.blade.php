@@ -1,12 +1,11 @@
 <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
     <div class="px-4 py-6 sm:px-0">
         <h1 class="text-3xl font-bold text-gray-900 mb-6">List Data Warga</h1>
-
         <div class="flex justify-end items-center mb-4">
-            <input type="text" wire:model.live="search" placeholder="Cari NIK atau Nama..." class="border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50 focus:ring-blue-300 w-64">
+            <input type="text" wire:model.live="search" placeholder="Cari NIK atau Nama..." class="border-slate-300 rounded-xl shadow-sm focus:ring focus:ring-blue-600 focus:border-blue-600 w-64">
         </div>
 
-        <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">

@@ -5,8 +5,8 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" class="text-lg font-bold text-blue-700">
-                        📦 Sembako
+                    <a href="{{ route('dashboard') }}" class="text-xl font-extrabold tracking-tight text-blue-800">
+                        Sistem Warga
                     </a>
                 </div>
 
@@ -14,25 +14,25 @@
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     @if(Auth::user()->isSecurity() || Auth::user()->isAdmin())
                     <x-nav-link :href="route('security.scan')" :active="request()->routeIs('security.scan')">
-                        📷 {{ __('Scan KTP') }}
+                        {{ __('Scan KTP') }}
                     </x-nav-link>
                     @endif
 
                     @if(Auth::user()->isData() || Auth::user()->isAdmin())
                     <x-nav-link :href="route('data.warga')" :active="request()->routeIs('data.warga')">
-                        📝 {{ __('Input Data Warga') }}
+                        {{ __('Input Data Warga') }}
                     </x-nav-link>
                     @endif
 
                     @if(Auth::user()->isAdmin())
                     <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
-                        📊 {{ __('Dashboard Admin') }}
+                        {{ __('Dashboard Admin') }}
                     </x-nav-link>
                     <x-nav-link :href="route('admin.users')" :active="request()->routeIs('admin.users')">
-                        👥 {{ __('Data User') }}
+                        {{ __('Data User') }}
                     </x-nav-link>
                     <x-nav-link :href="route('admin.warga-list')" :active="request()->routeIs('admin.warga-list')">
-                        📂 {{ __('Data Warga') }}
+                        {{ __('Data Warga') }}
                     </x-nav-link>
                     @endif
                 </div>

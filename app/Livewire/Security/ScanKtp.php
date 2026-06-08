@@ -8,7 +8,9 @@ use App\Models\HistoriSedekah;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Services\ImageService;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.app')]
 class ScanKtp extends Component
 {
     public $nik;
@@ -87,6 +89,6 @@ class ScanKtp extends Component
 
     public function render()
     {
-        return view('livewire.security.scan-ktp')->layout('layouts.app');
+        return view('livewire.security.scan-ktp');
     }
 }

@@ -1,7 +1,7 @@
 x<x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            📊 Dashboard Admin - Pembagian Sembako
+            Dashboard Administrator
         </h2>
     </x-slot>
 
@@ -14,7 +14,7 @@ x<x-app-layout>
                 <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Penerima</p>
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Warga Terdata</p>
                             <p class="text-3xl font-bold text-gray-800 mt-1">{{ number_format($totalWarga) }}</p>
                         </div>
                         <div class="bg-blue-100 rounded-full p-3">
@@ -29,7 +29,7 @@ x<x-app-layout>
                 <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Sudah Ambil</p>
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Telah Diverifikasi</p>
                             <p class="text-3xl font-bold text-green-600 mt-1">{{ number_format($sudahAmbil) }}</p>
                         </div>
                         <div class="bg-green-100 rounded-full p-3">
@@ -52,7 +52,7 @@ x<x-app-layout>
                 <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Belum Ambil</p>
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Menunggu Verifikasi</p>
                             <p class="text-3xl font-bold text-red-600 mt-1">{{ number_format($belumAmbil) }}</p>
                         </div>
                         <div class="bg-red-100 rounded-full p-3">
@@ -75,7 +75,7 @@ x<x-app-layout>
             {{-- Table: Warga Sudah Ambil --}}
             <div class="bg-white rounded-xl shadow-md overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                    <h3 class="text-lg font-semibold text-gray-800">📋 Daftar Warga Sudah Mengambil Sembako</h3>
+                    <h3 class="text-lg font-semibold text-gray-800">Daftar Registrasi Warga Terakhir</h3>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -86,7 +86,7 @@ x<x-app-layout>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NIK</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alamat</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu Ambil</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu Input</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Petugas</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Foto KTP</th>
                             </tr>
@@ -131,7 +131,7 @@ x<x-app-layout>
                             @empty
                             <tr>
                                 <td colspan="7" class="px-4 py-8 text-center text-gray-500">
-                                    Belum ada warga yang mengambil sembako.
+                                    Belum ada data warga terdaftar.
                                 </td>
                             </tr>
                             @endforelse

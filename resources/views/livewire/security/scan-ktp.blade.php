@@ -1,8 +1,8 @@
 <div class="max-w-md mx-auto py-6 sm:px-6 lg:px-8">
     <div class="bg-white shadow overflow-hidden sm:rounded-lg">
         <div class="px-4 py-5 sm:px-6 bg-blue-600 text-white text-center">
-            <h3 class="text-lg leading-6 font-medium">Scan KTP Sembako</h3>
-            <p class="mt-1 text-sm text-blue-100">Petugas Security Gateway</p>
+            <h3 class="text-lg leading-6 font-medium">Sistem Scan KTP</h3>
+            <p class="mt-1 text-sm text-blue-100">Petugas Security</p>
         </div>
 
         <div class="p-6">
