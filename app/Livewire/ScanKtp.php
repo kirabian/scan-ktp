@@ -7,7 +7,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 
+#[Layout('layouts.app')]
+#[Title('Scan KTP - Pembagian Sembako')]
 class ScanKtp extends Component
 {
     use WithFileUploads;
@@ -166,8 +170,6 @@ class ScanKtp extends Component
 
     public function render()
     {
-        return view('livewire.scan-ktp')
-            ->layout('layouts.app')
-            ->title('Scan KTP - Pembagian Sembako');
+        return view('livewire.scan-ktp');
     }
 }
