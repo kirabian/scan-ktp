@@ -282,11 +282,14 @@ class OcrController extends Controller
                 }
             }
 
-            // Fallback NIK Global
             if (empty($extractedData['nik'])) {
-                $sanitizedText = str_replace(['I', 'l', 'L', '|', 'O', 'o', 's', 'S', '?', 'b', 'B'], ['1', '1', '1', '1', '0', '0', '5', '5', '7', '6', '8'], str_replace(' ', '', $text));
+                $sanitizedText = str_replace(['I', 'l', 'L', '|', 'O', 'o', 's', 'S', '?', 'b', 'B', '!', 'Z', 'z', ']'], ['1', '1', '1', '1', '0', '0', '5', '5', '7', '6', '8', '1', '2', '2', '1'], str_replace(' ', '', $text));
                 if (preg_match('/\d{16}/', $sanitizedText, $m)) {
                     $extractedData['nik'] = $m[0];
+                } else {
+                    if (preg_match('/NIK[^\w\d]*([a-zA-Z0-9\?\!\.\-\_\|\]\[]{14,18})/i', str_replace(' ', '', $text), $mDebug)) {
+                        $extractedData['nik'] = "RAW: " . $mDebug[1];
+                    }
                 }
             }
 
