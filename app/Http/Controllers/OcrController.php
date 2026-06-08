@@ -102,8 +102,8 @@ class OcrController extends Controller
             foreach ($values as $i => $val) {
                 // A. Cari NIK
                 if (empty($extractedData['nik'])) {
-                    $sanitized = str_replace(['I', 'l', '|', 'O', 'o', 's', 'S'], ['1', '1', '1', '0', '0', '5', '5'], str_replace(' ', '', $val));
-                    if (preg_match('/\b\d{16}\b/', $sanitized, $mNik)) {
+                    $sanitized = str_replace(['I', 'l', 'L', '|', 'O', 'o', 's', 'S', '?', 'b', 'B'], ['1', '1', '1', '1', '0', '0', '5', '5', '7', '6', '8'], str_replace(' ', '', $val));
+                    if (preg_match('/\d{16}/', $sanitized, $mNik)) {
                         $extractedData['nik'] = $mNik[0];
                         $usedIndices[] = $i;
                     }
@@ -284,8 +284,8 @@ class OcrController extends Controller
 
             // Fallback NIK Global
             if (empty($extractedData['nik'])) {
-                $sanitizedText = str_replace(['I', 'l', '|', 'O', 'o', 's', 'S'], ['1', '1', '1', '0', '0', '5', '5'], str_replace(' ', '', $text));
-                if (preg_match('/\b\d{16}\b/', $sanitizedText, $m)) {
+                $sanitizedText = str_replace(['I', 'l', 'L', '|', 'O', 'o', 's', 'S', '?', 'b', 'B'], ['1', '1', '1', '1', '0', '0', '5', '5', '7', '6', '8'], str_replace(' ', '', $text));
+                if (preg_match('/\d{16}/', $sanitizedText, $m)) {
                     $extractedData['nik'] = $m[0];
                 }
             }
