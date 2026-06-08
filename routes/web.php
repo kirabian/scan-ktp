@@ -33,6 +33,8 @@ Route::middleware('auth')->group(function () {
     // Admin routes
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/dashboard', \App\Livewire\Admin\Dashboard::class)->name('admin.dashboard');
+        Route::get('/admin/users', \App\Livewire\Admin\UserManage::class)->name('admin.users');
+        Route::get('/admin/warga', \App\Livewire\Admin\WargaList::class)->name('admin.warga-list');
     });
 
     // Security routes

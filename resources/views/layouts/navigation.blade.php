@@ -28,6 +28,12 @@
                     <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                         📊 {{ __('Dashboard Admin') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('admin.users')" :active="request()->routeIs('admin.users')">
+                        👥 {{ __('Data User') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('admin.warga-list')" :active="request()->routeIs('admin.warga-list')">
+                        📂 {{ __('Data Warga') }}
+                    </x-nav-link>
                     @endif
                 </div>
             </div>
@@ -94,6 +100,12 @@
             @if(Auth::user()->isAdmin())
             <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                 📊 {{ __('Dashboard Admin') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('admin.users')" :active="request()->routeIs('admin.users')">
+                👥 {{ __('Data User') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('admin.warga-list')" :active="request()->routeIs('admin.warga-list')">
+                📂 {{ __('Data Warga') }}
             </x-responsive-nav-link>
             @endif
         </div>
