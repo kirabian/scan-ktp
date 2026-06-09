@@ -417,8 +417,11 @@
                         const result = await response.json();
 
                         if (result.success) {
+                            if (result.nik) {
+                                let cleanNik = result.nik.replace('RAW:', '').trim();
+                                @this.set('nik', cleanNik);
+                            }
                             const fields = {
-                                'nik': result.nik,
                                 'nama': result.nama,
                                 'tempat_tgl_lahir': result.tempat_tgl_lahir,
                                 'jenis_kelamin': result.jenis_kelamin,
@@ -455,8 +458,10 @@
                                 statusEl.classList.add('hidden');
                                 e.target.value = '';
                             } else if (result.nik.startsWith('RAW:')) {
-                                statusEl.innerText = "⚠️ NIK terbaca kurang jelas (" + result.nik + "). Silakan periksa kembali.";
-                                statusEl.className = "text-sm font-bold text-orange-600";
+                                let rawNik = result.nik.replace('RAW:', '').trim();
+                                alert("NIK terbaca kurang jelas/lengkap (" + rawNik + "). Angka telah dimasukkan ke kolom NIK, silakan lengkapi menjadi 16 digit.");
+                                statusEl.classList.add('hidden');
+                                e.target.value = '';
                             } else {
                                 statusEl.innerText = "✅ Semua data KTP berhasil terisi otomatis!";
                                 statusEl.className = "text-sm font-bold text-green-600";

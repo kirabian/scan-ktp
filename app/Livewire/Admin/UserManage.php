@@ -24,7 +24,7 @@ class UserManage extends Component
     public $isModalOpen = 0;
 
     protected $rules = [
-        'name' => 'required|string|max:255',
+        'name' => 'required|string|max:255|unique:users,name',
         'email' => 'required|email|max:255|unique:users,email',
         'password' => 'required|string|min:8',
         'role' => 'required|in:admin,security,data',
@@ -70,6 +70,7 @@ class UserManage extends Component
     {
         $rules = $this->rules;
         if ($this->userId) {
+            $rules['name'] = 'required|string|max:255|unique:users,name,' . $this->userId;
             $rules['email'] = 'required|email|max:255|unique:users,email,' . $this->userId;
             $rules['password'] = 'nullable|string|min:8';
         }

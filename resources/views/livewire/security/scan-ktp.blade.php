@@ -51,6 +51,7 @@
                                 Cari Data
                             </button>
                         </div>
+                        @error('manualNik') <span class="text-red-500 text-xs font-bold mt-2 block">{{ $message }}</span> @enderror
                     </form>
                 </div>
             @endif
@@ -202,10 +203,16 @@
                             debugEl.classList.remove('hidden');
                         }
                         
-                        if (result.success && result.nik) {
+                        if (result.success && result.nik && !result.nik.startsWith('RAW:')) {
                             Livewire.dispatch('nikScanned', { nik: result.nik });
                         } else {
-                            alert("Gagal membaca NIK otomatis dari KTP. Silakan potret ulang atau ketik NIK secara manual.");
+                            let rawNik = result.nik ? result.nik.replace('RAW:', '').trim() : '';
+                            if (rawNik) {
+                                @this.set('manualNik', rawNik);
+                                alert("NIK dari foto kurang jelas/tidak lengkap (" + rawNik + "). Angka telah dimasukkan ke kolom Input Manual, silakan lengkapi/koreksi menjadi 16 digit lalu klik Cari Data.");
+                            } else {
+                                alert("Gagal membaca NIK otomatis dari KTP. Silakan potret ulang atau ketik NIK secara manual.");
+                            }
                             document.getElementById('loading-indicator').classList.add('hidden');
                             ktpInput.value = '';
                         }

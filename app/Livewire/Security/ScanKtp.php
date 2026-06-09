@@ -61,7 +61,10 @@ class ScanKtp extends Component
     public function searchManual()
     {
         $this->validate([
-            'manualNik' => 'required|min:16'
+            'manualNik' => 'required|size:16'
+        ], [
+            'manualNik.required' => 'Kolom NIK wajib diisi.',
+            'manualNik.size' => 'NIK harus persis 16 digit angka. Silakan lengkapi atau perbaiki NIK di atas.'
         ]);
         
         $this->nikScanned($this->manualNik);

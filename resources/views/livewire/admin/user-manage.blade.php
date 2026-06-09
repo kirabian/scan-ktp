@@ -15,9 +15,10 @@
             <input type="text" wire:model.live="search" placeholder="Cari User..." class="border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50 focus:ring-blue-300">
         </div>
 
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+        <div class="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+            <div class="overflow-x-auto w-full">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
@@ -48,7 +49,8 @@
                     @endforelse
                 </tbody>
             </table>
-            <div class="px-4 py-3 bg-gray-50">
+            </div>
+            <div class="px-4 py-3 bg-gray-50 border-t border-gray-200">
                 {{ $users->links() }}
             </div>
         </div>
