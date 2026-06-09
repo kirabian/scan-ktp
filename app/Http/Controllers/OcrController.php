@@ -20,32 +20,46 @@ class OcrController extends Controller
 
         try {
             $processedImagePath = $this->preprocessImage($tempPath, $mimeType);
-            $base64Image = base64_encode(file_get_contents($processedImagePath));
+            $apiKey = env('OCR_SPACE_API_KEY', 'helloworld'); // Gunakan helloworld sebagai fallback testing
+
+            // Kirim gambar langsung via multipart ke OCR.space
+            $response = Http::attach(
+                'file', file_get_contents($processedImagePath), 'ktp.jpg'
+            )->post('https://api.ocr.space/parse/image', [
+                'apikey' => $apiKey,
+                'language' => 'eng',
+                'scale' => 'true',
+                'isTable' => 'true',
+                'OCREngine' => '1',
+            ]);
 
             if (file_exists($processedImagePath) && $processedImagePath !== $tempPath) {
                 unlink($processedImagePath);
             }
 
-            $gasUrl = env('GAS_OCR_URL');
-            if (empty($gasUrl)) {
-                return response()->json(['success' => false, 'message' => 'GAS_OCR_URL belum diatur di .env!']);
-            }
-
-            $response = Http::post($gasUrl, [
-                'base64Image' => $base64Image,
-                'mimeType' => 'image/jpeg'
-            ]);
-
             $result = $response->json();
-            if (!$result || !isset($result['success']) || !$result['success']) {
+
+            if (!$response->successful() || (isset($result['IsErroredOnProcessing']) && $result['IsErroredOnProcessing'] == true)) {
+                $errorMsg = isset($result['ErrorMessage']) ? json_encode($result['ErrorMessage']) : 'Unknown error';
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal memproses OCR di Google Apps Script.',
+                    'message' => 'Gagal memproses OCR dari API OCR.space. Error: ' . $errorMsg,
                     'raw_text' => $response->body(),
                 ]);
             }
 
-            $text = $result['text'];
+            $text = '';
+            if (isset($result['ParsedResults'][0]['ParsedText'])) {
+                $text = $result['ParsedResults'][0]['ParsedText'];
+            }
+
+            if (empty(trim($text))) {
+                 return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada teks yang terdeteksi dari gambar KTP ini.',
+                    'raw_text' => $response->body(),
+                ]);
+            }
 
             // Log raw text
             try {
@@ -386,7 +400,7 @@ class OcrController extends Controller
         // imagefilter($image, IMG_FILTER_CONTRAST, -45);
 
         $processedPath = sys_get_temp_dir() . '/ocr_prepared_' . uniqid() . '.jpg';
-        imagejpeg($image, $processedPath, 85); // Gunakan JPEG kualitas 85% agar file lebih kecil & upload lebih cepat
+        imagejpeg($image, $processedPath, 80); // Gunakan JPEG kualitas 80% untuk memastikan size aman di bawah 1MB untuk OCR.space
         imagedestroy($image);
 
         return $processedPath;
