@@ -6,7 +6,9 @@ use Livewire\Component;
 use App\Models\Warga;
 use App\Models\HistoriSedekah;
 use Carbon\Carbon;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.app')]
 class Dashboard extends Component
 {
     public function render()
@@ -31,6 +33,6 @@ class Dashboard extends Component
             'totalSedekahHariIni' => $totalSedekahHariIni,
             'totalKasusGandaHariIni' => $totalKasusGandaHariIni,
             'logHistori' => $logHistori,
-        ])->layout('layouts.app');
+        ]);
     }
 }

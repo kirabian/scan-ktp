@@ -33,7 +33,7 @@ class OcrController extends Controller
 
             $response = Http::post($gasUrl, [
                 'base64Image' => $base64Image,
-                'mimeType' => 'image/png'
+                'mimeType' => 'image/jpeg'
             ]);
 
             $result = $response->json();
@@ -369,7 +369,7 @@ class OcrController extends Controller
 
         $width = imagesx($image);
         $height = imagesy($image);
-        $targetWidth = 1500;
+        $targetWidth = 1200; // Kurangi resolusi sedikit agar file lebih ringan & cepat diproses
 
         if ($width > $targetWidth) {
             $scale = $targetWidth / $width;
@@ -385,8 +385,8 @@ class OcrController extends Controller
         // imagefilter($image, IMG_FILTER_GRAYSCALE);
         // imagefilter($image, IMG_FILTER_CONTRAST, -45);
 
-        $processedPath = sys_get_temp_dir() . '/ocr_prepared_' . uniqid() . '.png';
-        imagepng($image, $processedPath);
+        $processedPath = sys_get_temp_dir() . '/ocr_prepared_' . uniqid() . '.jpg';
+        imagejpeg($image, $processedPath, 85); // Gunakan JPEG kualitas 85% agar file lebih kecil & upload lebih cepat
         imagedestroy($image);
 
         return $processedPath;

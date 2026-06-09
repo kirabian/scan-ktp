@@ -65,6 +65,6 @@ class WargaList extends Component
 
         $warga->delete();
 
-        session()->flash('success', 'Data Warga beserta fotonya berhasil dihapus.');
+        request()->session()->flash('success', 'Data Warga beserta fotonya berhasil dihapus.');
     }
 }

@@ -6,7 +6,9 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.app')]
 class UserManage extends Component
 {
     use WithPagination;
@@ -36,7 +38,7 @@ class UserManage extends Component
 
         return view('livewire.admin.user-manage', [
             'users' => $users,
-        ])->layout('layouts.app');
+        ]);
     }
 
     public function create()
