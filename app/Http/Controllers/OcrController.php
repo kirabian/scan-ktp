@@ -29,8 +29,8 @@ class OcrController extends Controller
                 'apikey' => $apiKey,
                 'language' => 'eng',
                 'scale' => 'true',
-                'isTable' => 'true',
-                'OCREngine' => '1',
+                'isOverlayRequired' => 'false',
+                'OCREngine' => '2', // Engine 2 jauh lebih baik untuk membaca KTP / ID Card yang formatnya tidak beraturan
             ]);
 
             if (file_exists($processedImagePath) && $processedImagePath !== $tempPath) {
