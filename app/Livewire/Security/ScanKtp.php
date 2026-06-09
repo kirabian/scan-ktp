@@ -38,7 +38,8 @@ class ScanKtp extends Component
         $this->warga = Warga::where('nik', $this->nik)->first();
 
         if (!$this->warga) {
-            $this->errorMessage = 'Warga Belum Terdaftar! (NIK Terdeteksi: ' . $this->nik . '). Silahkan ke Petugas DATA untuk Registrasi.';
+            $this->errorMessage = 'Data warga tidak ditemukan! (NIK Terdeteksi: ' . $this->nik . ').';
+            $this->manualNik = $this->nik;
             return;
         }
 

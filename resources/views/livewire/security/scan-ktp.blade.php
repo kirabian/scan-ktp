@@ -14,13 +14,13 @@
 
             @if ($errorMessage && !$warga)
                 <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
-                    <p class="font-bold mb-2">Error:</p>
-                    <p>{{ $errorMessage }}</p>
-                    <button wire:click="resetScan" class="mt-3 w-full bg-red-600 text-white rounded-lg py-2 text-sm font-semibold hover:bg-red-700">Scan Ulang</button>
+                    <p class="font-bold mb-1">Peringatan:</p>
+                    <p class="text-sm">{{ $errorMessage }}</p>
+                    <p class="text-sm mt-2 font-medium">Jika NIK salah baca, silakan perbaiki di kolom Manual di bawah ini.</p>
                 </div>
             @endif
 
-            @if (!$warga && !$errorMessage)
+            @if (!$warga)
                 <div class="text-center" id="scan-container">
                     <p class="mb-4 text-slate-600">Ambil foto KTP warga untuk mengecek status dan data.</p>
                     
