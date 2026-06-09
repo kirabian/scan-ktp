@@ -338,42 +338,14 @@ class OcrController extends Controller
                 $extractedData['nik'] = '3172051401070001';
             }
 
-            // H. Gabungkan Alamat Lengkap
-            $alamatLengkapArr = [];
+            // H. Gabungkan Alamat
             if ($jalan) {
                 // Hapus titik dua yang tersisa di bagian akhir teks alamat jika OCR salah menempatkannya
                 $jalanBersih = preg_replace('/[\s:]+$/', '', $jalan);
-                $alamatLengkapArr[] = $jalanBersih;
+                $extractedData['alamat_ktp'] = $jalanBersih;
+            } else {
+                $extractedData['alamat_ktp'] = '';
             }
-
-            if ($extractedData['rt_rw_ktp']) {
-                $parts = explode('/', $extractedData['rt_rw_ktp']);
-                if (count($parts) === 2) {
-                    $alamatLengkapArr[] = 'RT ' . $parts[0] . ' / RW ' . $parts[1];
-                } else {
-                    $alamatLengkapArr[] = 'RT/RW ' . $extractedData['rt_rw_ktp'];
-                }
-            }
-
-            if ($extractedData['kel_desa_ktp']) {
-                $alamatLengkapArr[] = 'Kelurahan ' . ucwords(strtolower($extractedData['kel_desa_ktp']));
-            }
-
-            if ($extractedData['kecamatan_ktp']) {
-                $alamatLengkapArr[] = 'Kecamatan ' . ucwords(strtolower($extractedData['kecamatan_ktp']));
-            }
-
-            if ($kabupaten) {
-                $alamatLengkapArr[] = ucwords(strtolower($kabupaten));
-            }
-
-            if ($provinsi) {
-                // Khusus DKI agar tetap kapital
-                $provinsiTitle = str_replace('Dki', 'DKI', ucwords(strtolower($provinsi)));
-                $alamatLengkapArr[] = $provinsiTitle;
-            }
-
-            $extractedData['alamat_ktp'] = implode(' ', $alamatLengkapArr);
 
             return response()->json(array_merge([
                 'success' => true,
