@@ -355,7 +355,7 @@
         document.addEventListener('livewire:initialized', () => {
             const ktpInput = document.getElementById('ocr-ktp');
             if (ktpInput) {
-                ktpInput.addEventListener('change', async function(e) {
+                ktpInput.onchange = async function(e) {
                     const file = e.target.files[0];
                     if (!file) return;
 

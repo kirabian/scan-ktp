@@ -158,7 +158,7 @@
         function setupKtpScanner() {
             const ktpInput = document.getElementById('ktp-input');
             if (ktpInput) {
-                ktpInput.addEventListener('change', async function(e) {
+                ktpInput.onchange = async function(e) {
                     const file = e.target.files[0];
                     if (!file) return;
 
@@ -229,7 +229,7 @@
         function setupEmergencyCamera() {
             const emInput = document.getElementById('emergency-ktp-input');
             if (emInput) {
-                emInput.addEventListener('change', async function(e) {
+                emInput.onchange = async function(e) {
                     const file = e.target.files[0];
                     if (!file) return;
 
