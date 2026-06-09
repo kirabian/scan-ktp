@@ -22,13 +22,15 @@ class OcrController extends Controller
             $processedImagePath = $this->preprocessImage($tempPath, $mimeType);
             $apiKey = env('OCR_SPACE_API_KEY', 'helloworld'); // Gunakan helloworld sebagai fallback testing
 
-            // Input Data Warga memakai Engine 3, sedangkan Security memakai Engine 2
+            // Sesuai request, Input Data Warga dan Security sama-sama menggunakan Engine 3
             $isSecurity = $request->input('is_security') == '1';
-            $ocrEngine = $isSecurity ? '2' : '3';
+            $ocrEngine = '3';
 
             // Kirim gambar langsung via multipart ke OCR.space
             $response = Http::attach(
-                'file', file_get_contents($processedImagePath), 'ktp.jpg'
+                'file',
+                file_get_contents($processedImagePath),
+                'ktp.jpg'
             )->post('https://api.ocr.space/parse/image', [
                 'apikey' => $apiKey,
                 'language' => 'eng',
@@ -58,7 +60,7 @@ class OcrController extends Controller
             }
 
             if (empty(trim($text))) {
-                 return response()->json([
+                return response()->json([
                     'success' => false,
                     'message' => 'Tidak ada teks yang terdeteksi dari gambar KTP ini.',
                     'raw_text' => $response->body(),
