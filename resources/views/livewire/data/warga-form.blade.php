@@ -451,8 +451,9 @@
                             }
 
                             if (!result.nik) {
-                                statusEl.innerText = "⚠️ Data KTP terbaca, tapi NIK gagal diekstrak. Silakan isi NIK secara manual.";
-                                statusEl.className = "text-sm font-bold text-orange-600";
+                                alert("Data KTP kurang jelas dan NIK gagal diekstrak. Silakan foto ulang atau ketik NIK secara manual.");
+                                statusEl.classList.add('hidden');
+                                e.target.value = '';
                             } else if (result.nik.startsWith('RAW:')) {
                                 statusEl.innerText = "⚠️ NIK terbaca kurang jelas (" + result.nik + "). Silakan periksa kembali.";
                                 statusEl.className = "text-sm font-bold text-orange-600";
@@ -461,8 +462,9 @@
                                 statusEl.className = "text-sm font-bold text-green-600";
                             }
                         } else {
-                            statusEl.innerText = "⚠️ Gagal membaca data KTP. Silakan ketik secara manual.";
-                            statusEl.className = "text-sm font-bold text-orange-600";
+                            alert("Gagal membaca data KTP. Silakan foto ulang atau ketik manual.");
+                            statusEl.classList.add('hidden');
+                            e.target.value = '';
                             if (debugEl && result.raw_ocr_text) {
                                 debugEl.innerText = "Raw Response:\n" + result.raw_ocr_text;
                                 debugEl.classList.remove('hidden');
@@ -470,8 +472,9 @@
                         }
                     } catch (err) {
                         console.error(err);
-                        statusEl.innerText = "Terjadi kesalahan OCR: " + err.message;
-                        statusEl.className = "text-sm font-bold text-red-600";
+                        alert("Terjadi kesalahan OCR: " + err.message);
+                        statusEl.classList.add('hidden');
+                        e.target.value = '';
                     }
                 });
             }

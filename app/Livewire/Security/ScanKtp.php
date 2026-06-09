@@ -14,6 +14,7 @@ use Livewire\Attributes\Layout;
 class ScanKtp extends Component
 {
     public $nik;
+    public $manualNik = '';
     public $warga = null;
     public $errorMessage = '';
     public $warningMessage = '';
@@ -55,6 +56,16 @@ class ScanKtp extends Component
                 $this->warningMessage = 'Sudah di scan hari ini jam: ' . $historiTerakhir->waktu_ambil->format('H:i') . '. Yakin mau dilanjutkan lagi?';
             }
         }
+    }
+
+    public function searchManual()
+    {
+        $this->validate([
+            'manualNik' => 'required|min:16'
+        ]);
+        
+        $this->nikScanned($this->manualNik);
+        $this->manualNik = '';
     }
 
     public function handleMasuk()

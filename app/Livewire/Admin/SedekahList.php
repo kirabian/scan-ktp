@@ -13,6 +13,22 @@ class SedekahList extends Component
     use WithPagination;
 
     public $search = '';
+    public $showModal = false;
+    public $selectedHistori = null;
+
+    public function showDetail($id)
+    {
+        $this->selectedHistori = HistoriSedekah::with(['warga', 'petugasSecurity'])->find($id);
+        if ($this->selectedHistori) {
+            $this->showModal = true;
+        }
+    }
+
+    public function closeModal()
+    {
+        $this->showModal = false;
+        $this->selectedHistori = null;
+    }
 
     public function updatingSearch()
     {

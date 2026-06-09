@@ -33,6 +33,22 @@
                         <div id="ocr-status-text" class="inline-flex items-center text-blue-600 font-medium">Memproses OCR KTP...</div>
                         <div id="ocr-debug-info" class="mt-2 text-xs text-slate-500 font-mono hidden bg-slate-100 p-2.5 rounded-lg max-h-40 overflow-y-auto whitespace-pre-wrap border border-slate-200 text-left"></div>
                     </div>
+
+                    <div class="mt-6 flex items-center justify-center">
+                        <div class="border-t border-slate-200 flex-grow"></div>
+                        <span class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Atau</span>
+                        <div class="border-t border-slate-200 flex-grow"></div>
+                    </div>
+
+                    <form wire:submit.prevent="searchManual" class="mt-6">
+                        <label for="manual_nik" class="block text-sm font-bold text-slate-700 text-left mb-2">Input NIK Manual</label>
+                        <div class="flex gap-2">
+                            <input type="text" wire:model="manualNik" id="manual_nik" placeholder="Ketik 16 digit NIK..." class="flex-1 rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                            <button type="submit" class="bg-slate-800 text-white px-4 py-2 rounded-xl font-bold hover:bg-slate-900 transition-colors">
+                                Cari
+                            </button>
+                        </div>
+                    </form>
                 </div>
             @endif
 
@@ -186,18 +202,15 @@
                         if (result.success && result.nik) {
                             Livewire.dispatch('nikScanned', { nik: result.nik });
                         } else {
-                            if (statusText) {
-                                statusText.innerText = "⚠️ Gagal membaca NIK otomatis. Silakan coba lagi.";
-                                statusText.className = "inline-flex items-center text-orange-600 font-medium";
-                            }
+                            alert("Gagal membaca NIK otomatis dari KTP. Silakan potret ulang atau ketik NIK secara manual.");
+                            document.getElementById('loading-indicator').classList.add('hidden');
                             ktpInput.value = '';
                         }
                     } catch (err) {
                         console.error(err);
-                        if (statusText) {
-                            statusText.innerText = "Error: " + err.message;
-                            statusText.className = "inline-flex items-center text-red-600 font-medium";
-                        }
+                        alert("Terjadi kesalahan sistem: " + err.message);
+                        document.getElementById('loading-indicator').classList.add('hidden');
+                        ktpInput.value = '';
                     }
                 });
             }
