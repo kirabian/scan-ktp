@@ -50,4 +50,28 @@ class Warga extends Model
     {
         return $this->hasMany(HistoriSedekah::class);
     }
+
+    /**
+     * Get the computed Umur based on tempat_tgl_lahir.
+     */
+    public function getUmurAttribute()
+    {
+        if (!$this->tempat_tgl_lahir) return '-';
+
+        preg_match('/(\d{2})[- \/.](\d{2})[- \/.](\d{4})/', $this->tempat_tgl_lahir, $matches);
+        
+        if (count($matches) == 4) {
+            $day = $matches[1];
+            $month = $matches[2];
+            $year = $matches[3];
+            try {
+                $date = \Carbon\Carbon::createFromDate($year, $month, $day);
+                return $date->age;
+            } catch (\Exception $e) {
+                return '-';
+            }
+        }
+        
+        return '-';
+    }
 }

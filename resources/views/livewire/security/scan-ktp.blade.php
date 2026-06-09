@@ -77,7 +77,7 @@
 
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
                         <p class="text-xs text-slate-500 uppercase tracking-wider font-bold mb-1">Nama Lengkap</p>
-                        <p class="text-lg font-bold text-slate-800">{{ $warga->nama }}</p>
+                        <p class="text-lg font-bold text-slate-800">{{ $warga->nama }} <span class="text-sm font-bold text-blue-600 ml-1">(Umur: {{ $warga->umur }} Thn)</span></p>
                         
                         <p class="text-xs text-slate-500 uppercase tracking-wider font-bold mb-1 mt-3">Alamat Domisili</p>
                         <p class="text-sm font-medium text-slate-700">

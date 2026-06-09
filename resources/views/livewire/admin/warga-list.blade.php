@@ -80,7 +80,7 @@
                                     <tbody>
                                         <tr><td class="py-1 font-medium text-gray-600 w-1/3">NIK</td><td class="py-1 font-bold">{{ $selectedWarga->nik }}</td></tr>
                                         <tr><td class="py-1 font-medium text-gray-600">Nama</td><td class="py-1">{{ $selectedWarga->nama }}</td></tr>
-                                        <tr><td class="py-1 font-medium text-gray-600">TTL</td><td class="py-1">{{ $selectedWarga->tempat_tgl_lahir }}</td></tr>
+                                        <tr><td class="py-1 font-medium text-gray-600">TTL</td><td class="py-1">{{ $selectedWarga->tempat_tgl_lahir }} <span class="font-bold text-blue-600 ml-1">(Umur: {{ $selectedWarga->umur }} Thn)</span></td></tr>
                                         <tr><td class="py-1 font-medium text-gray-600">Jenis Kelamin</td><td class="py-1">{{ $selectedWarga->jenis_kelamin }}</td></tr>
                                         <tr><td class="py-1 font-medium text-gray-600">Pekerjaan</td><td class="py-1">{{ $selectedWarga->pekerjaan }}</td></tr>
                                         <tr><td class="py-1 font-medium text-gray-600">No WhatsApp/HP</td><td class="py-1">{{ $selectedWarga->no_wa_hp }}</td></tr>

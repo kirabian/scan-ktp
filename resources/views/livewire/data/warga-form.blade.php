@@ -69,7 +69,7 @@
                     </div>
 
                     <div>
-                        <label for="tempat_tgl_lahir" class="block text-sm font-medium text-gray-700">Tempat, Tgl Lahir</label>
+                        <label for="tempat_tgl_lahir" class="block text-sm font-medium text-gray-700">Tempat, Tgl Lahir <span id="umur-kalkulator" class="text-blue-600 font-bold ml-1"></span></label>
                         <input type="text" wire:model="tempat_tgl_lahir" id="tempat_tgl_lahir" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                     </div>
                     <div>
@@ -512,6 +512,38 @@
                 // Scroll kembali ke atas
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
+            
+            // Kalkulator Umur Otomatis
+            setInterval(function() {
+                const ttlInput = document.getElementById('tempat_tgl_lahir');
+                const umurSpan = document.getElementById('umur-kalkulator');
+                if (ttlInput && umurSpan) {
+                    if (!ttlInput.value) {
+                        umurSpan.innerText = '';
+                        return;
+                    }
+                    const match = ttlInput.value.match(/(\d{2})[- \/.](\d{2})[- \/.](\d{4})/);
+                    if (match && match.length === 4) {
+                        const day = parseInt(match[1]);
+                        const month = parseInt(match[2]) - 1;
+                        const year = parseInt(match[3]);
+                        const birthDate = new Date(year, month, day);
+                        const today = new Date();
+                        let age = today.getFullYear() - birthDate.getFullYear();
+                        const m = today.getMonth() - birthDate.getMonth();
+                        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                            age--;
+                        }
+                        if (age >= 0 && age < 150) {
+                            umurSpan.innerText = '(Umur: ' + age + ' Tahun)';
+                        } else {
+                            umurSpan.innerText = '';
+                        }
+                    } else {
+                        umurSpan.innerText = '';
+                    }
+                }
+            }, 500);
         });
     </script>
 </div>
