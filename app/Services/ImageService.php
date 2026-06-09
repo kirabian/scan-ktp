@@ -38,6 +38,33 @@ class ImageService
         // Get original dimensions
         list($origWidth, $origHeight, $type) = getimagesize($imagePath);
 
+        // Check EXIF orientation for JPEG to fix rotation issues
+        $deg = 0;
+        if ($type == IMAGETYPE_JPEG) {
+            $exif = @exif_read_data($imagePath);
+            if ($exif && isset($exif['Orientation'])) {
+                $orientation = $exif['Orientation'];
+                switch ($orientation) {
+                    case 3:
+                        $deg = 180;
+                        break;
+                    case 6:
+                        $deg = 270; // 90 CW
+                        break;
+                    case 8:
+                        $deg = 90; // 90 CCW
+                        break;
+                }
+            }
+        }
+
+        // Swap dimensions if rotated 90 or 270 degrees
+        if ($deg == 90 || $deg == 270) {
+            $temp = $origWidth;
+            $origWidth = $origHeight;
+            $origHeight = $temp;
+        }
+
         // Calculate new dimensions (max 1200px width/height)
         $maxWidth = 1200;
         $maxHeight = 1200;
@@ -57,6 +84,9 @@ class ImageService
         switch ($type) {
             case IMAGETYPE_JPEG:
                 $sourceImage = imagecreatefromjpeg($imagePath);
+                if ($deg) {
+                    $sourceImage = imagerotate($sourceImage, $deg, 0);
+                }
                 break;
             case IMAGETYPE_PNG:
                 $sourceImage = imagecreatefrompng($imagePath);

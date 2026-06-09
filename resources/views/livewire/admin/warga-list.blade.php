@@ -1,6 +1,12 @@
 <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
     <div class="px-4 py-6 sm:px-0">
         <h1 class="text-3xl font-bold text-gray-900 mb-6">List Data Warga</h1>
+        @if (session()->has('success'))
+            <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                <span class="block sm:inline">{{ session('success') }}</span>
+            </div>
+        @endif
+
         <div class="flex justify-end items-center mb-4">
             <input type="text" wire:model.live="search" placeholder="Cari NIK atau Nama..." class="border-slate-300 rounded-xl shadow-sm focus:ring focus:ring-blue-600 focus:border-blue-600 w-64">
         </div>
@@ -29,7 +35,10 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $warga->no_wa_hp }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button wire:click="viewDetails({{ $warga->id }})" class="text-blue-600 hover:text-blue-900">Lihat Detail & Foto</button>
+                                    <button wire:click="viewDetails({{ $warga->id }})" class="text-blue-600 hover:text-blue-900 mr-3">Lihat Detail & Foto</button>
+                                    @if(Auth::user()->role === 'admin')
+                                        <button wire:click="deleteWarga({{ $warga->id }})" wire:confirm="Yakin ingin menghapus data warga ini beserta fotonya? Tindakan ini tidak bisa dibatalkan." class="text-red-600 hover:text-red-900">Hapus</button>
+                                    @endif
                                 </td>
                             </tr>
                         @empty
