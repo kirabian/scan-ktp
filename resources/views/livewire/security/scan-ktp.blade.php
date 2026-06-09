@@ -222,7 +222,7 @@
                         document.getElementById('loading-indicator').classList.add('hidden');
                         ktpInput.value = '';
                     }
-                });
+                };
             }
         }
 
@@ -243,7 +243,7 @@
                         console.error(err);
                         document.getElementById('emergency-loading').classList.add('hidden');
                     }
-                });
+                };
             }
         }
 

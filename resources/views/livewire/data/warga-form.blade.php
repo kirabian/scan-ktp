@@ -481,7 +481,7 @@
                         statusEl.classList.add('hidden');
                         e.target.value = '';
                     }
-                });
+                };
             }
 
             // Listener ketika form berhasil disimpan
