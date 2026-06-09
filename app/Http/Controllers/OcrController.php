@@ -22,6 +22,10 @@ class OcrController extends Controller
             $processedImagePath = $this->preprocessImage($tempPath, $mimeType);
             $apiKey = env('OCR_SPACE_API_KEY', 'helloworld'); // Gunakan helloworld sebagai fallback testing
 
+            // Jika request datang dari halaman Security, gunakan Engine 1 agar lebih cepat (karena hanya butuh NIK)
+            $isSecurity = $request->input('is_security') == '1';
+            $ocrEngine = $isSecurity ? '1' : '2';
+
             // Kirim gambar langsung via multipart ke OCR.space
             $response = Http::attach(
                 'file', file_get_contents($processedImagePath), 'ktp.jpg'
@@ -30,7 +34,7 @@ class OcrController extends Controller
                 'language' => 'eng',
                 'scale' => 'true',
                 'isOverlayRequired' => 'false',
-                'OCREngine' => '2', // Engine 2 jauh lebih baik untuk membaca KTP / ID Card yang formatnya tidak beraturan
+                'OCREngine' => $ocrEngine,
             ]);
 
             if (file_exists($processedImagePath) && $processedImagePath !== $tempPath) {

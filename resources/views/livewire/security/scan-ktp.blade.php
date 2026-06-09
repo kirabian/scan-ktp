@@ -165,6 +165,7 @@
 
                         const formData = new FormData();
                         formData.append('foto_ktp', blob, 'ktp_compressed.jpg');
+                        formData.append('is_security', '1');
 
                         const response = await fetch("{{ route('ocr.ktp') }}", {
                             method: 'POST',
