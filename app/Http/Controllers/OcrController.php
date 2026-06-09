@@ -22,9 +22,9 @@ class OcrController extends Controller
             $processedImagePath = $this->preprocessImage($tempPath, $mimeType);
             $apiKey = env('OCR_SPACE_API_KEY', 'helloworld'); // Gunakan helloworld sebagai fallback testing
 
-            // Jika request datang dari halaman Security, gunakan Engine 1 agar lebih cepat (karena hanya butuh NIK)
+            // Input Data Warga memakai Engine 3, sedangkan Security memakai Engine 2
             $isSecurity = $request->input('is_security') == '1';
-            $ocrEngine = $isSecurity ? '1' : '2';
+            $ocrEngine = $isSecurity ? '2' : '3';
 
             // Kirim gambar langsung via multipart ke OCR.space
             $response = Http::attach(
