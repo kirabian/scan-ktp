@@ -41,11 +41,14 @@
                     </div>
 
                     <form wire:submit.prevent="searchManual" class="mt-6">
-                        <label for="manual_nik" class="block text-sm font-bold text-slate-700 text-left mb-2">Input NIK Manual</label>
-                        <div class="flex gap-2">
-                            <input type="text" wire:model="manualNik" id="manual_nik" placeholder="Ketik 16 digit NIK..." class="flex-1 rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-                            <button type="submit" class="bg-slate-800 text-white px-4 py-2 rounded-xl font-bold hover:bg-slate-900 transition-colors">
-                                Cari
+                        <label for="manual_nik" class="block text-sm font-bold text-gray-700 text-left mb-2">Input NIK Manual</label>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <input type="text" wire:model="manualNik" id="manual_nik" placeholder="Ketik 16 digit NIK..." class="w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-3" required>
+                            <button type="submit" class="w-full sm:w-auto bg-blue-600 text-white px-8 py-3 rounded-xl font-bold shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                                </svg>
+                                Cari Data
                             </button>
                         </div>
                     </form>
