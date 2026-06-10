@@ -26,7 +26,7 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @forelse ($wargas as $warga)
-                            <tr>
+                            <tr wire:key="warga-row-{{ $warga->id }}">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $warga->nik }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $warga->nama }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $warga->jenis_kelamin }}</td>

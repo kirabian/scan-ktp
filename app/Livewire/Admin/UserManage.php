@@ -21,7 +21,7 @@ class UserManage extends Component
     public $password;
     public $role = 'data';
     
-    public $isModalOpen = 0;
+    public $isModalOpen = false;
 
     protected $rules = [
         'name' => 'required|string|max:255|unique:users,name',

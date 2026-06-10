@@ -17,6 +17,7 @@ class OcrController extends Controller
         $file = $request->file('foto_ktp');
         $mimeType = $file->getMimeType();
         $tempPath = $file->getRealPath();
+        $processedImagePath = $tempPath;
 
         try {
             $processedImagePath = $this->preprocessImage($tempPath, $mimeType);
@@ -38,14 +39,15 @@ class OcrController extends Controller
                 'OCREngine' => $ocrEngine,
             ]);
 
-            if (file_exists($processedImagePath) && $processedImagePath !== $tempPath) {
-                unlink($processedImagePath);
-            }
-
             $result = $response->json();
             $text = false;
 
-            if (!$response->successful() || (isset($result['IsErroredOnProcessing']) && $result['IsErroredOnProcessing'] == true)) {
+            if (
+                !$response->successful() || 
+                (isset($result['IsErroredOnProcessing']) && $result['IsErroredOnProcessing'] == true) || 
+                isset($result['error']) || 
+                !isset($result['ParsedResults'][0]['ParsedText'])
+            ) {
                 // FALLBACK: Gunakan Google Apps Script OCR jika OCR.space gagal/limit
                 $gasUrl = env('GAS_OCR_URL');
                 if ($gasUrl) {
@@ -53,17 +55,15 @@ class OcrController extends Controller
                 }
                 
                 if ($text === false) {
-                    $errorMsg = isset($result['ErrorMessage']) ? json_encode($result['ErrorMessage']) : 'Unknown error';
+                    $errorMsg = $result['error'] ?? (isset($result['ErrorMessage']) ? json_encode($result['ErrorMessage']) : 'Unknown error');
                     return response()->json([
                         'success' => false,
-                        'message' => 'Gagal memproses OCR dari API OCR.space maupun fallback GAS. Error OCR.space: ' . $errorMsg,
+                        'message' => 'Gagal memproses OCR dari API OCR.space maupun fallback GAS. Detail: ' . $errorMsg,
                         'raw_ocr_text' => $response->body(),
                     ]);
                 }
             } else {
-                if (isset($result['ParsedResults'][0]['ParsedText'])) {
-                    $text = $result['ParsedResults'][0]['ParsedText'];
-                }
+                $text = $result['ParsedResults'][0]['ParsedText'];
             }
 
             if (empty(trim($text))) {
@@ -383,6 +383,10 @@ class OcrController extends Controller
             ], $extractedData));
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Gagal memproses OCR: ' . $e->getMessage()], 500);
+        } finally {
+            if (isset($processedImagePath) && file_exists($processedImagePath) && $processedImagePath !== $tempPath) {
+                @unlink($processedImagePath);
+            }
         }
     }
 
