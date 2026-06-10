@@ -43,19 +43,27 @@ class OcrController extends Controller
             }
 
             $result = $response->json();
+            $text = false;
 
             if (!$response->successful() || (isset($result['IsErroredOnProcessing']) && $result['IsErroredOnProcessing'] == true)) {
-                $errorMsg = isset($result['ErrorMessage']) ? json_encode($result['ErrorMessage']) : 'Unknown error';
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Gagal memproses OCR dari API OCR.space. Error: ' . $errorMsg,
-                    'raw_ocr_text' => $response->body(),
-                ]);
-            }
-
-            $text = '';
-            if (isset($result['ParsedResults'][0]['ParsedText'])) {
-                $text = $result['ParsedResults'][0]['ParsedText'];
+                // FALLBACK: Gunakan Google Apps Script OCR jika OCR.space gagal/limit
+                $gasUrl = env('GAS_OCR_URL');
+                if ($gasUrl) {
+                    $text = $this->processWithGasOcr($processedImagePath, $gasUrl);
+                }
+                
+                if ($text === false) {
+                    $errorMsg = isset($result['ErrorMessage']) ? json_encode($result['ErrorMessage']) : 'Unknown error';
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Gagal memproses OCR dari API OCR.space maupun fallback GAS. Error OCR.space: ' . $errorMsg,
+                        'raw_ocr_text' => $response->body(),
+                    ]);
+                }
+            } else {
+                if (isset($result['ParsedResults'][0]['ParsedText'])) {
+                    $text = $result['ParsedResults'][0]['ParsedText'];
+                }
             }
 
             if (empty(trim($text))) {
@@ -409,5 +417,31 @@ class OcrController extends Controller
         imagedestroy($image);
 
         return $processedPath;
+    }
+
+    private function processWithGasOcr($imagePath, $gasUrl)
+    {
+        try {
+            $base64 = base64_encode(file_get_contents($imagePath));
+            $response = Http::post($gasUrl, [
+                'base64' => $base64,
+                'mimeType' => 'image/jpeg'
+            ]);
+            
+            if ($response->successful()) {
+                $result = $response->json();
+                if (isset($result['text'])) {
+                    return $result['text'];
+                }
+                
+                $body = $response->body();
+                if (strlen($body) > 10) {
+                    return $body;
+                }
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("GAS OCR Fallback error: " . $e->getMessage());
+        }
+        return false;
     }
 }
