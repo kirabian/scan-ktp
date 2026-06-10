@@ -50,7 +50,6 @@ try:
         "use_doc_orientation_classify": False,
         "use_doc_unwarping": False,
         "use_textline_orientation": False,
-        "show_log": False,
         "lang": "en",
     }
     if os.name == 'nt': # Windows
