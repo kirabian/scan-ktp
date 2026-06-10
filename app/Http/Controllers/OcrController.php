@@ -119,7 +119,7 @@ class OcrController extends Controller
                 }
 
                 // Hapus semua label KTP dari awal baris
-                $clean = preg_replace('/^(NIK|N1K|NlK|N\|K|NK|N1k|M1K|IIK|HIK|MK|Nama|Tempat\/?Tgl\s*Lahir|Tempat|Tgl|Lahir|Jenis\s*Kelamin|Kelamin|Gol\.?\s*Darah|Gol|Darah|Alamat|RT[\/\-]RW|RT\s*RW|RT|RW|Kel\/Desa|Kelurahan|Desa|Kecamatan|Kec|Agama|Status\s*Perkawinan|Status|Perkawinan|Pekerjaan|Kewarganegaraan|Berlaku\s*Hingga|Berlaku|Hingga)[\s:\-\.]*/i', '', $line);
+                $clean = preg_replace('/^(NIK|N1K|NlK|N\|K|NK|N1k|M1K|IIK|HIK|MK|Nama|Tempat\/?Tgl\s*Lahir|Tempat|Tgl|Lahir|Jenis\s*Kelamin|Kelamin|Gol\.?\s*Darah|Gol[,\.]?\s*Daral|Gol|Darah|Alamat|RT[\/\-]RW|RT\s*RW|RT|RW|Kel\/Desa|Kelurahan|Desa|Kecamatan|Kec|Agama|Status\s*Perkawinan|Status|Perkawinan|Pekerjaan|Kewarganegaraan|Berlaku\s*Hingga|Berlaku|Hingga)[\s:\-\.]*/i', '', $line);
                 $clean = trim($clean);
 
                 // Hapus simbol titik dua atau strip di awal baris jika ada (misal ": WEDOMARTANI" -> "WEDOMARTANI")
@@ -345,15 +345,18 @@ class OcrController extends Controller
             $koreksiOcr = [
                 'KAUDERES' => 'KALIDERES',
                 'JAKATRA' => 'JAKARTA',
+                'SJAKARTA' => 'JAKARTA',
                 'SEMANAM' => 'SEMANAN',
                 'DESHMAYANGKUTE' => 'DESHMAYANGKUTI',
-                'SIRAYUNO' => 'SIRAYU NO.'
+                'SIRAYUNO' => 'SIRAYU NO.',
+                'GOL, DARAL' => ''
             ];
 
             foreach ($koreksiOcr as $salah => $benar) {
                 if (!empty($extractedData['nama'])) {
                     $extractedData['nama'] = str_replace($salah, $benar, $extractedData['nama']);
                 }
+                $extractedData['tempat_tgl_lahir'] = str_replace($salah, $benar, $extractedData['tempat_tgl_lahir']);
                 $extractedData['kel_desa_ktp'] = str_replace($salah, $benar, $extractedData['kel_desa_ktp']);
                 $extractedData['kecamatan_ktp'] = str_replace($salah, $benar, $extractedData['kecamatan_ktp']);
                 $jalan = str_replace($salah, $benar, $jalan);

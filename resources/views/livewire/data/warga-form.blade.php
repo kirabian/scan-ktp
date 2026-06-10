@@ -417,11 +417,12 @@
                         const result = await response.json();
 
                         if (result.success) {
+                            let cleanNik = '';
                             if (result.nik) {
-                                let cleanNik = result.nik.replace('RAW:', '').trim();
-                                @this.set('nik', cleanNik);
+                                cleanNik = result.nik.replace('RAW:', '').trim();
                             }
                             const fields = {
+                                'nik': cleanNik,
                                 'nama': result.nama,
                                 'tempat_tgl_lahir': result.tempat_tgl_lahir,
                                 'jenis_kelamin': result.jenis_kelamin,
