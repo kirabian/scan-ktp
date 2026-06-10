@@ -8,6 +8,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Session;
 
 #[Layout('layouts.app')]
 class WargaList extends Component
@@ -21,10 +22,17 @@ class WargaList extends Component
 
     public function render()
     {
-        $wargas = Warga::where('nik', 'like', '%' . $this->search . '%')
-            ->orWhere('nama', 'like', '%' . $this->search . '%')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $query = Warga::query();
+
+        if (!empty(trim($this->search))) {
+            $searchTerm = '%' . trim($this->search) . '%';
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('nik', 'like', $searchTerm)
+                  ->orWhere('nama', 'like', $searchTerm);
+            });
+        }
+
+        $wargas = $query->orderBy('created_at', 'desc')->paginate(10);
 
         return view('livewire.admin.warga-list', [
             'wargas' => $wargas,
@@ -65,6 +73,6 @@ class WargaList extends Component
 
         $warga->delete();
 
-        request()->session()->flash('success', 'Data Warga beserta fotonya berhasil dihapus.');
+        Session::flash('success', 'Data Warga beserta fotonya berhasil dihapus.');
     }
 }

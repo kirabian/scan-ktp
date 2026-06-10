@@ -37,13 +37,17 @@ class SedekahList extends Component
 
     public function render()
     {
-        $histori = HistoriSedekah::with(['warga', 'petugasSecurity'])
-            ->whereHas('warga', function($query) {
-                $query->where('nik', 'like', '%' . $this->search . '%')
-                      ->orWhere('nama', 'like', '%' . $this->search . '%');
-            })
-            ->orderBy('waktu_ambil', 'desc')
-            ->paginate(15);
+        $query = HistoriSedekah::with(['warga', 'petugasSecurity']);
+
+        if (!empty(trim($this->search))) {
+            $searchTerm = '%' . trim($this->search) . '%';
+            $query->whereHas('warga', function ($q) use ($searchTerm) {
+                $q->where('nik', 'like', $searchTerm)
+                  ->orWhere('nama', 'like', $searchTerm);
+            });
+        }
+
+        $histori = $query->orderBy('waktu_ambil', 'desc')->paginate(15);
 
         return view('livewire.admin.sedekah-list', [
             'histori' => $histori
