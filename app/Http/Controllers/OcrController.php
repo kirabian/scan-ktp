@@ -23,9 +23,7 @@ class OcrController extends Controller
             $apiKey = env('OCR_SPACE_API_KEY', 'helloworld'); // Gunakan helloworld sebagai fallback testing
 
             // Sesuai request, Input Data Warga memakai Engine 3, sedangkan Security memakai Engine 2
-            /** @var \App\Models\User|null $user */
-            $user = auth()->user();
-            $isSecurity = $request->input('is_security') == '1' || ($user && $user->isSecurity());
+            $isSecurity = $request->input('is_security') == '1';
             $ocrEngine = $isSecurity ? '2' : '3';
 
             // Kirim gambar langsung via multipart ke OCR.space
