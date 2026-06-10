@@ -428,7 +428,7 @@ class OcrController extends Controller
         // imagefilter($image, IMG_FILTER_GRAYSCALE);
         // imagefilter($image, IMG_FILTER_CONTRAST, -45);
 
-        $processedPath = sys_get_temp_dir() . '/ocr_prepared_' . uniqid() . '.jpg';
+        $processedPath = storage_path('app/ocr_prepared_' . uniqid() . '.jpg');
         imagejpeg($image, $processedPath, 80); // Gunakan JPEG kualitas 80% untuk memastikan size aman di bawah 1MB untuk OCR.space
         imagedestroy($image);
 
@@ -610,7 +610,7 @@ class OcrController extends Controller
         // 2. Naikkan kontras secara signifikan agar teks hitam terpisah dari noise background biru KTP
         imagefilter($image, IMG_FILTER_CONTRAST, -80); 
 
-        $processedPath = sys_get_temp_dir() . '/ocr_tesseract_' . uniqid() . '.jpg';
+        $processedPath = storage_path('app/ocr_tesseract_' . uniqid() . '.jpg');
         imagejpeg($image, $processedPath, 90);
         imagedestroy($image);
 
