@@ -36,7 +36,7 @@ class OcrController extends Controller
             } else { // auto
                 Log::info("Auto Fallback: Mencoba OCR.space terlebih dahulu...");
                 $text = $this->processWithOcrSpace($processedImagePath, $rawLogResponse);
-                
+
                 if ($text === false || empty(trim($text))) {
                     Log::warning("Auto Fallback: OCR.space gagal/limit. Beralih ke Local PaddleOCR...");
                     $text = $this->processWithPaddleOcr($processedImagePath);
@@ -77,78 +77,78 @@ class OcrController extends Controller
             // =================================================================
             // Menggunakan Pembacaan Struktur Baris untuk PaddleOCR (Sangat Akurat)
             $lines = array_map('trim', explode("\n", $text));
-                $values = [];
+            $values = [];
 
-                foreach ($lines as $line) {
-                    if (preg_match('/(Loading weights|it\/s|%\|)/i', $line) || empty(trim($line))) {
-                        continue;
-                    }
+            foreach ($lines as $line) {
+                if (preg_match('/(Loading weights|it\/s|%\|)/i', $line) || empty(trim($line))) {
+                    continue;
+                }
 
-                    $clean = preg_replace('/^(NIK|N1K|NlK|N\|K|NK|N1k|M1K|IIK|HIK|MK|Nama|Tempat\/?T\s*g\s*l\s*Lahir|Tempat|T\s*g\s*l|Lahir|Jenis\s*Kelamin|Kelamin|Gol\.?\s*Darah|Gol[,\.]?\s*Daral|Gol|Darah|Alamat|RT[\/\-]RW|RT\s*RW|RT|RW|Kel\/Desa|Kelurahan|Desa|Kecamatan|Kec|Agama|Status\s*Perkawinan|Status|Perkawinan|Pekerjaan|Kewarganegaraan|Berlaku\s*Hingga|Berlaku|Hingga)[\s:\-\.]*/i', '', $line);
-                    $clean = trim($clean);
-                    $clean = preg_replace('/^[:\-\.\=]+\s*/', '', $clean);
+                $clean = preg_replace('/^(NIK|N1K|NlK|N\|K|NK|N1k|M1K|IIK|HIK|MK|Nama|Tempat\/?T\s*g\s*l\s*Lahir|Tempat|T\s*g\s*l|Lahir|Jenis\s*Kelamin|Kelamin|Gol\.?\s*Darah|Gol[,\.]?\s*Daral|Gol|Darah|Alamat|RT[\/\-]RW|RT\s*RW|RT|RW|Kel\/Desa|Kelurahan|Desa|Kecamatan|Kec|Agama|Status\s*Perkawinan|Status|Perkawinan|Pekerjaan|Kewarganegaraan|Berlaku\s*Hingga|Berlaku|Hingga)[\s:\-\.]*/i', '', $line);
+                $clean = trim($clean);
+                $clean = preg_replace('/^[:\-\.\=]+\s*/', '', $clean);
 
-                    if (strlen($clean) > 1 && !preg_match('/^[=\-\_\.\:\/]+$/', $clean)) {
-                        $values[] = $clean;
+                if (strlen($clean) > 1 && !preg_match('/^[=\-\_\.\:\/]+$/', $clean)) {
+                    $values[] = $clean;
+                }
+            }
+
+            $rtrwIndex = -1;
+            $usedIndices = [];
+
+            foreach ($values as $i => $val) {
+                if (empty($extractedData['nik'])) {
+                    $sanitized = preg_replace('/[^\d]/', '', $val);
+                    if (preg_match('/\d{16}/', $sanitized, $mNik)) {
+                        $extractedData['nik'] = $mNik[0];
+                        $usedIndices[] = $i;
                     }
                 }
 
-                $rtrwIndex = -1;
-                $usedIndices = [];
+                if (empty($extractedData['tempat_tgl_lahir']) && preg_match('/^([A-Za-z\s\.\-]+)[,\.]?\s*(\d{2})\s*[\-\.]\s*(\d{2})\s*[\-\.]\s*(\d{4})/i', $val, $mTtl)) {
+                    $ttlString = trim($mTtl[1]);
+                    $usedIndices[] = $i;
 
-                foreach ($values as $i => $val) {
-                    if (empty($extractedData['nik'])) {
-                        $sanitized = preg_replace('/[^\d]/', '', $val);
-                        if (preg_match('/\d{16}/', $sanitized, $mNik)) {
-                            $extractedData['nik'] = $mNik[0];
-                            $usedIndices[] = $i;
+                    if (empty($extractedData['nama']) && $i > 0) {
+                        $namaIndex = $i - 1;
+                        if (preg_match('/(LAHIR|LAH|LHR|TGL|GL|TMP)/i', $values[$namaIndex]) && isset($values[$namaIndex - 1])) {
+                            $namaIndex--;
+                        }
+                        if (!preg_match('/\b\d{16}\b/', str_replace(' ', '', $values[$namaIndex]))) {
+                            $cleanNama = preg_replace('/^[\/\s:\-]+/', '', $values[$namaIndex]);
+                            $extractedData['nama'] = strtoupper(trim($cleanNama));
+                            $usedIndices[] = $namaIndex;
                         }
                     }
-
-                    if (empty($extractedData['tempat_tgl_lahir']) && preg_match('/^([A-Za-z\s\.\-]+)[,\.]?\s*(\d{2})\s*[\-\.]\s*(\d{2})\s*[\-\.]\s*(\d{4})/i', $val, $mTtl)) {
-                        $ttlString = trim($mTtl[1]);
-                        $usedIndices[] = $i;
-
-                        if (empty($extractedData['nama']) && $i > 0) {
-                            $namaIndex = $i - 1;
-                            if (preg_match('/(LAHIR|LAH|LHR|TGL|GL|TMP)/i', $values[$namaIndex]) && isset($values[$namaIndex - 1])) {
-                                $namaIndex--;
-                            }
-                            if (!preg_match('/\b\d{16}\b/', str_replace(' ', '', $values[$namaIndex]))) {
-                                $cleanNama = preg_replace('/^[\/\s:\-]+/', '', $values[$namaIndex]);
-                                $extractedData['nama'] = strtoupper(trim($cleanNama));
-                                $usedIndices[] = $namaIndex;
-                            }
-                        }
-                        $extractedData['tempat_tgl_lahir'] = trim($ttlString) . ', ' . $mTtl[2] . '-' . $mTtl[3] . '-' . $mTtl[4];
-                    }
-
-                    if (empty($extractedData['jenis_kelamin']) && preg_match('/(LAKI|PEREMPUAN)/i', $val, $mJk)) {
-                        $extractedData['jenis_kelamin'] = preg_match('/PEREMPUAN/i', $mJk[1]) ? 'PEREMPUAN' : 'LAKI-LAKI';
-                        $usedIndices[] = $i;
-                    }
-
-                    $valRtRw = str_replace(['O', 'o', 'I', 'l', '|'], ['0', '0', '1', '1', '1'], $val);
-                    if (empty($extractedData['rt_rw_ktp']) && preg_match('/(?<!\d)(\d{3})\s*[\/\|\-\\\:\.]?\s*(\d{3})(?!\d)/', $valRtRw, $m)) {
-                        $extractedData['rt_rw_ktp'] = sprintf("%03d/%03d", (int)$m[1], (int)$m[2]);
-                        $rtrwIndex = $i;
-                        $usedIndices[] = $i;
-                    }
+                    $extractedData['tempat_tgl_lahir'] = trim($ttlString) . ', ' . $mTtl[2] . '-' . $mTtl[3] . '-' . $mTtl[4];
                 }
 
-                if ($rtrwIndex !== -1) {
-                    $kelIdx = $rtrwIndex + 1;
-                    $kecIdx = $rtrwIndex + 2;
-                    if (isset($values[$kelIdx]) && !in_array($kelIdx, $usedIndices)) {
-                        $extractedData['kel_desa_ktp'] = strtoupper($values[$kelIdx]);
-                    }
-                    if (isset($values[$kecIdx]) && !in_array($kecIdx, $usedIndices)) {
-                        $extractedData['kecamatan_ktp'] = strtoupper($values[$kecIdx]);
-                    }
-                    if ($rtrwIndex > 0 && isset($values[$rtrwIndex - 1])) {
-                        $extractedData['alamat_ktp'] = strtoupper($values[$rtrwIndex - 1]);
-                    }
+                if (empty($extractedData['jenis_kelamin']) && preg_match('/(LAKI|PEREMPUAN)/i', $val, $mJk)) {
+                    $extractedData['jenis_kelamin'] = preg_match('/PEREMPUAN/i', $mJk[1]) ? 'PEREMPUAN' : 'LAKI-LAKI';
+                    $usedIndices[] = $i;
                 }
+
+                $valRtRw = str_replace(['O', 'o', 'I', 'l', '|'], ['0', '0', '1', '1', '1'], $val);
+                if (empty($extractedData['rt_rw_ktp']) && preg_match('/(?<!\d)(\d{3})\s*[\/\|\-\\\:\.]?\s*(\d{3})(?!\d)/', $valRtRw, $m)) {
+                    $extractedData['rt_rw_ktp'] = sprintf("%03d/%03d", (int)$m[1], (int)$m[2]);
+                    $rtrwIndex = $i;
+                    $usedIndices[] = $i;
+                }
+            }
+
+            if ($rtrwIndex !== -1) {
+                $kelIdx = $rtrwIndex + 1;
+                $kecIdx = $rtrwIndex + 2;
+                if (isset($values[$kelIdx]) && !in_array($kelIdx, $usedIndices)) {
+                    $extractedData['kel_desa_ktp'] = strtoupper($values[$kelIdx]);
+                }
+                if (isset($values[$kecIdx]) && !in_array($kecIdx, $usedIndices)) {
+                    $extractedData['kecamatan_ktp'] = strtoupper($values[$kecIdx]);
+                }
+                if ($rtrwIndex > 0 && isset($values[$rtrwIndex - 1])) {
+                    $extractedData['alamat_ktp'] = strtoupper($values[$rtrwIndex - 1]);
+                }
+            }
 
             // Fallback NIK Global dari teks bersih jika pencarian baris meleset
             if (empty($extractedData['nik'])) {
@@ -217,9 +217,9 @@ class OcrController extends Controller
                 'scale' => 'true',
                 'OCREngine' => '2',
             ]);
-            
+
             $rawLogResponse = $response->body();
-            
+
             if ($response->successful()) {
                 $result = $response->json();
                 if (isset($result['error']) || (isset($result['IsErroredOnProcessing']) && $result['IsErroredOnProcessing'] == true)) {
@@ -244,14 +244,14 @@ class OcrController extends Controller
                 return false;
             }
             $base64Image = base64_encode(file_get_contents($imagePath));
-            
+
             $response = Http::post($gasUrl, [
                 'image' => $base64Image,
                 'mimeType' => $mimeType,
             ]);
 
             $rawLogResponse = $response->body();
-            
+
             if ($response->successful()) {
                 $result = $response->json();
                 if (isset($result['text'])) {
@@ -271,16 +271,55 @@ class OcrController extends Controller
 
     private function processWithPaddleOcr($imagePath)
     {
+        $socketPath = '/tmp/paddleocr_daemon.sock';
+
+        // Fallback ke exec() kalau daemon tidak jalan
+        if (!file_exists($socketPath)) {
+            Log::warning("PaddleOCR daemon tidak aktif, fallback ke exec()");
+            return $this->processWithPaddleOcrExec($imagePath);
+        }
+
+        try {
+            $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
+            if (!$socket) throw new \Exception("Gagal buat socket");
+
+            socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, ['sec' => 15, 'usec' => 0]);
+            socket_set_option($socket, SOL_SOCKET, SO_SNDTIMEO, ['sec' => 5,  'usec' => 0]);
+
+            if (!socket_connect($socket, $socketPath)) {
+                throw new \Exception("Gagal connect ke daemon");
+            }
+
+            socket_write($socket, $imagePath . "\n");
+
+            $response = '';
+            while ($chunk = socket_read($socket, 4096)) {
+                $response .= $chunk;
+                if (str_ends_with(trim($response), '}')) break;
+            }
+            socket_close($socket);
+
+            $data = json_decode(trim($response), true);
+
+            if (isset($data['error'])) {
+                throw new \Exception($data['error']);
+            }
+
+            return $data['text'] ?? false;
+        } catch (\Exception $e) {
+            Log::error("PaddleOCR Daemon Error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // Method lama sebagai fallback
+    private function processWithPaddleOcrExec($imagePath)
+    {
         try {
             $pythonBinary = env('PYTHON_BINARY_PATH', 'python');
             $scriptPath = base_path('app/Services/paddle_ocr.py');
-            
-            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-                $command = 'set FLAGS_use_onednn=0 && set FLAGS_use_mkldnn=0 && "' . $pythonBinary . '" "' . $scriptPath . '" "' . $imagePath . '" 2>&1';
-            } else {
-                $storagePath = storage_path('app');
-                $command = 'HOME="' . $storagePath . '" FLAGS_use_onednn=0 FLAGS_use_mkldnn=0 "' . $pythonBinary . '" "' . $scriptPath . '" "' . $imagePath . '" 2>&1';
-            }
+            $storagePath = storage_path('app');
+            $command = 'HOME="' . $storagePath . '" FLAGS_use_onednn=0 FLAGS_use_mkldnn=0 "' . $pythonBinary . '" "' . $scriptPath . '" "' . $imagePath . '" 2>&1';
 
             $output = [];
             $returnVar = 0;
@@ -292,7 +331,7 @@ class OcrController extends Controller
             }
             return $resultText;
         } catch (\Exception $e) {
-            Log::error("PaddleOCR Error: " . $e->getMessage());
+            Log::error("PaddleOCR Exec Error: " . $e->getMessage());
             return false;
         }
     }
