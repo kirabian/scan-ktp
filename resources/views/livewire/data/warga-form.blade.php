@@ -17,6 +17,17 @@
             <div wire:ignore class="mb-6 bg-slate-50 p-5 rounded-xl border border-slate-200">
                 <h4 class="text-sm font-bold text-slate-700 mb-1">Scan KTP Otomatis (OCR)</h4>
                 <p class="text-xs text-slate-500 mb-4">Unggah atau foto KTP untuk mengisi form ini secara instan.</p>
+                
+                <div class="mb-3">
+                    <label for="ocr-engine" class="block text-xs font-semibold text-slate-600 mb-1">Pilih Mesin OCR / Scanner:</label>
+                    <select id="ocr-engine" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs py-2 px-3 bg-white border border-slate-300">
+                        <option value="auto">Auto Fallback (OCR.space -> PaddleOCR)</option>
+                        <option value="paddleocr" selected>Local PaddleOCR Python (Sangat Akurat)</option>
+                        <option value="ocrspace">OCR.space API Only</option>
+                        <option value="gas">Google Apps Script OCR Only</option>
+                    </select>
+                </div>
+
                 <input type="file" id="ocr-ktp" accept="image/*" capture="environment" class="block w-full text-sm text-gray-500
                     file:mr-4 file:py-2 file:px-4
                     file:rounded-lg file:border-0
@@ -415,6 +426,7 @@
                         statusEl.innerText = "Mengunggah ke OCR...";
                         const formData = new FormData();
                         formData.append('foto_ktp', blob, 'ktp_compressed.jpg');
+                        formData.append('ocr_engine', document.getElementById('ocr-engine').value);
 
                         const response = await fetch("{{ route('ocr.ktp') }}", {
                             method: 'POST',
