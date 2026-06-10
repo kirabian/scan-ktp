@@ -21,8 +21,8 @@
                 <div class="mb-3">
                     <label for="ocr-engine" class="block text-xs font-semibold text-slate-600 mb-1">Pilih Mesin OCR / Scanner:</label>
                     <select id="ocr-engine" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs py-2 px-3 bg-white border border-slate-300">
-                        <option value="auto">Auto Fallback (OCR.space -> PaddleOCR)</option>
-                        <option value="paddleocr" selected>Local PaddleOCR Python (Sangat Akurat)</option>
+                        <option value="auto" selected>Auto Fallback (OCR.space -> PaddleOCR)</option>
+                        <option value="paddleocr">Local PaddleOCR Python (Sangat Akurat)</option>
                         <option value="ocrspace">OCR.space API Only</option>
                         <option value="gas">Google Apps Script OCR Only</option>
                     </select>
