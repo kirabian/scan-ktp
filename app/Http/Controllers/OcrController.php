@@ -48,17 +48,26 @@ class OcrController extends Controller
                 isset($result['error']) || 
                 !isset($result['ParsedResults'][0]['ParsedText'])
             ) {
-                // FALLBACK: Gunakan Google Apps Script OCR jika OCR.space gagal/limit
-                $gasUrl = env('GAS_OCR_URL');
-                if ($gasUrl) {
-                    $text = $this->processWithGasOcr($processedImagePath, $gasUrl);
+                // Fallback 1: Gunakan Tesseract OCR lokal jika terinstall di system
+                if ($this->isTesseractAvailable()) {
+                    \Illuminate\Support\Facades\Log::info("OCR.space limited/error. Trying local Tesseract OCR...");
+                    $text = $this->processWithTesseract($processedImagePath);
+                }
+
+                // Fallback 2: Gunakan Google Apps Script OCR jika Tesseract tidak tersedia / gagal
+                if ($text === false) {
+                    \Illuminate\Support\Facades\Log::info("Tesseract local not available or failed. Trying Google Apps Script OCR...");
+                    $gasUrl = env('GAS_OCR_URL');
+                    if ($gasUrl) {
+                        $text = $this->processWithGasOcr($processedImagePath, $gasUrl);
+                    }
                 }
                 
                 if ($text === false) {
                     $errorMsg = $result['error'] ?? (isset($result['ErrorMessage']) ? json_encode($result['ErrorMessage']) : 'Unknown error');
                     return response()->json([
                         'success' => false,
-                        'message' => 'Gagal memproses OCR dari API OCR.space maupun fallback GAS. Detail: ' . $errorMsg,
+                        'message' => 'Gagal memproses OCR dari API OCR.space, local Tesseract, maupun fallback GAS. Detail: ' . $errorMsg,
                         'raw_ocr_text' => $response->body(),
                     ]);
                 }
@@ -512,5 +521,66 @@ class OcrController extends Controller
             \Illuminate\Support\Facades\Log::error("GAS OCR Fallback error: " . $e->getMessage());
         }
         return false;
+    }
+
+    private function isTesseractAvailable()
+    {
+        $executable = env('TESSERACT_BINARY_PATH', 'tesseract');
+        
+        // Di Windows, gunakan command 'where', sedangkan di Linux/OSX gunakan 'which'
+        $command = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' 
+            ? "where " . escapeshellarg($executable) . " 2>&1"
+            : "which " . escapeshellarg($executable) . " 2>&1";
+            
+        $output = [];
+        $returnVar = 0;
+        exec($command, $output, $returnVar);
+        
+        return $returnVar === 0;
+    }
+
+    private function processWithTesseract($imagePath)
+    {
+        try {
+            // Preprocessing khusus Tesseract untuk hasil pembacaan maksimal
+            $tesseractPreparedPath = $this->preprocessForTesseract($imagePath);
+
+            $tesseract = new \ThiagoAlessio\TesseractOCR\TesseractOCR($tesseractPreparedPath);
+            
+            $binaryPath = env('TESSERACT_BINARY_PATH');
+            if ($binaryPath) {
+                $tesseract->executable($binaryPath);
+            }
+            
+            // Menggunakan bahasa Indonesia (ind) dan Inggris (eng)
+            $text = $tesseract->lang('ind', 'eng')->run();
+            
+            if (file_exists($tesseractPreparedPath) && $tesseractPreparedPath !== $imagePath) {
+                @unlink($tesseractPreparedPath);
+            }
+            
+            return $text;
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Tesseract OCR error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    private function preprocessForTesseract(string $path): string
+    {
+        $image = @imagecreatefromjpeg($path);
+        if (!$image) return $path;
+
+        // 1. Ubah ke Grayscale
+        imagefilter($image, IMG_FILTER_GRAYSCALE);
+        
+        // 2. Naikkan kontras secara signifikan agar teks hitam terpisah dari noise background biru KTP
+        imagefilter($image, IMG_FILTER_CONTRAST, -80); 
+
+        $processedPath = sys_get_temp_dir() . '/ocr_tesseract_' . uniqid() . '.jpg';
+        imagejpeg($image, $processedPath, 90);
+        imagedestroy($image);
+
+        return $processedPath;
     }
 }
