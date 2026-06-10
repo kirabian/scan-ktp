@@ -525,22 +525,40 @@ class OcrController extends Controller
 
     private function isTesseractAvailable()
     {
-        if (!function_exists('exec')) {
-            return false;
+        $executable = env('TESSERACT_BINARY_PATH');
+        if ($executable) {
+            return file_exists($executable) && is_executable($executable);
         }
 
-        $executable = env('TESSERACT_BINARY_PATH', 'tesseract');
-        
-        // Di Windows, gunakan command 'where', sedangkan di Linux/OSX gunakan 'which'
-        $command = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' 
-            ? "where " . escapeshellarg($executable) . " 2>&1"
-            : "which " . escapeshellarg($executable) . " 2>&1";
-            
-        $output = [];
-        $returnVar = 0;
-        exec($command, $output, $returnVar);
-        
-        return $returnVar === 0;
+        // Jika OS nya Windows
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            if (!function_exists('exec')) {
+                return false;
+            }
+            $output = [];
+            $returnVar = 0;
+            exec("where tesseract 2>&1", $output, $returnVar);
+            return $returnVar === 0;
+        }
+
+        // Jika OS nya Linux/UNIX (seperti VPS production)
+        // Cek path standard secara native tanpa memanggil shell exec()
+        $standardPaths = ['/usr/bin/tesseract', '/usr/local/bin/tesseract', '/usr/sbin/tesseract'];
+        foreach ($standardPaths as $path) {
+            if (file_exists($path) && is_executable($path)) {
+                return true;
+            }
+        }
+
+        // Jika tidak ada di path standard, baru fallback ke 'which' jika exec() aktif
+        if (function_exists('exec')) {
+            $output = [];
+            $returnVar = 0;
+            exec("which tesseract 2>&1", $output, $returnVar);
+            return $returnVar === 0;
+        }
+
+        return false;
     }
 
     private function processWithTesseract($imagePath)
@@ -551,7 +569,18 @@ class OcrController extends Controller
 
             $tesseract = new \thiagoalessio\TesseractOCR\TesseractOCR($tesseractPreparedPath);
             
+            // Konfigurasi path binary secara otomatis agar tidak bergantung pada system PATH
             $binaryPath = env('TESSERACT_BINARY_PATH');
+            if (!$binaryPath && strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
+                $standardPaths = ['/usr/bin/tesseract', '/usr/local/bin/tesseract', '/usr/sbin/tesseract'];
+                foreach ($standardPaths as $path) {
+                    if (file_exists($path) && is_executable($path)) {
+                        $binaryPath = $path;
+                        break;
+                    }
+                }
+            }
+            
             if ($binaryPath) {
                 $tesseract->executable($binaryPath);
             }
