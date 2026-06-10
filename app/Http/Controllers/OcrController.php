@@ -293,10 +293,19 @@ class OcrController extends Controller
             socket_write($socket, $imagePath . "\n");
 
             $response = '';
-            while ($chunk = socket_read($socket, 4096)) {
+            socket_set_nonblock($socket);
+            $start = time();
+            while (time() - $start < 60) {
+                $chunk = @socket_read($socket, 8192);
+                if ($chunk === false) {
+                    usleep(100000);
+                    continue;
+                }
+                if ($chunk === '') break;
                 $response .= $chunk;
                 if (str_ends_with(trim($response), '}')) break;
             }
+            socket_set_block($socket);
             socket_close($socket);
 
             $data = json_decode(trim($response), true);
