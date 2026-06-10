@@ -20,9 +20,27 @@ class WargaList extends Component
     public $selectedWarga = null;
     public $isModalOpen = false;
 
+    // Edit states
+    public $isEditModalOpen = false;
+    public $editId;
+    public $editNik;
+    public $editNama;
+    public $editTempatTglLahir;
+    public $editJenisKelamin;
+    public $editAlamatKtp;
+    public $editRtRwKtp;
+    public $editKelDesaKtp;
+    public $editKecamatanKtp;
+    public $editNoWaHp;
+    public $editPekerjaan;
+
     public function render()
     {
-        $query = Warga::query();
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('wargas', 'created_by_user_id')) {
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        }
+
+        $query = Warga::with('createdBy');
 
         if (!empty(trim($this->search))) {
             $searchTerm = '%' . trim($this->search) . '%';
@@ -41,7 +59,7 @@ class WargaList extends Component
 
     public function viewDetails($id)
     {
-        $this->selectedWarga = Warga::findOrFail($id);
+        $this->selectedWarga = Warga::with('createdBy')->findOrFail($id);
         $this->isModalOpen = true;
     }
 
@@ -51,9 +69,77 @@ class WargaList extends Component
         $this->selectedWarga = null;
     }
 
+    public function editWarga($id)
+    {
+        if (!in_array(Auth::user()?->role, ['admin', 'data'])) {
+            abort(403, 'Unauthorized access');
+        }
+
+        $warga = Warga::findOrFail($id);
+        $this->editId = $warga->id;
+        $this->editNik = $warga->nik;
+        $this->editNama = $warga->nama;
+        $this->editTempatTglLahir = $warga->tempat_tgl_lahir;
+        $this->editJenisKelamin = $warga->jenis_kelamin;
+        $this->editAlamatKtp = $warga->alamat_ktp;
+        $this->editRtRwKtp = $warga->rt_rw_ktp;
+        $this->editKelDesaKtp = $warga->kel_desa_ktp;
+        $this->editKecamatanKtp = $warga->kecamatan_ktp;
+        $this->editNoWaHp = $warga->no_wa_hp;
+        $this->editPekerjaan = $warga->pekerjaan;
+        
+        $this->isEditModalOpen = true;
+    }
+
+    public function closeEditModal()
+    {
+        $this->isEditModalOpen = false;
+        $this->reset(['editId', 'editNik', 'editNama', 'editTempatTglLahir', 'editJenisKelamin', 'editAlamatKtp', 'editRtRwKtp', 'editKelDesaKtp', 'editKecamatanKtp', 'editNoWaHp', 'editPekerjaan']);
+    }
+
+    public function updateWarga()
+    {
+        if (!in_array(Auth::user()?->role, ['admin', 'data'])) {
+            abort(403, 'Unauthorized access');
+        }
+
+        $this->validate([
+            'editNik' => 'required|string|size:16|unique:wargas,nik,' . $this->editId,
+            'editNama' => 'required|string|max:255',
+            'editAlamatKtp' => 'required|string',
+            'editNoWaHp' => 'required|string',
+            'editPekerjaan' => 'required|string',
+        ], [
+            'editNik.required' => 'NIK wajib diisi.',
+            'editNik.size' => 'NIK harus persis 16 digit.',
+            'editNik.unique' => 'NIK ini sudah terdaftar.',
+            'editNama.required' => 'Nama wajib diisi.',
+            'editAlamatKtp.required' => 'Alamat wajib diisi.',
+            'editNoWaHp.required' => 'No HP wajib diisi.',
+            'editPekerjaan.required' => 'Pekerjaan wajib diisi.',
+        ]);
+
+        $warga = Warga::findOrFail($this->editId);
+        $warga->update([
+            'nik' => $this->editNik,
+            'nama' => $this->editNama,
+            'tempat_tgl_lahir' => $this->editTempatTglLahir,
+            'jenis_kelamin' => $this->editJenisKelamin,
+            'alamat_ktp' => $this->editAlamatKtp,
+            'rt_rw_ktp' => $this->editRtRwKtp,
+            'kel_desa_ktp' => $this->editKelDesaKtp,
+            'kecamatan_ktp' => $this->editKecamatanKtp,
+            'no_wa_hp' => $this->editNoWaHp,
+            'pekerjaan' => $this->editPekerjaan,
+        ]);
+
+        Session::flash('success', 'Data Warga berhasil diperbarui.');
+        $this->closeEditModal();
+    }
+
     public function deleteWarga($id)
     {
-        if (Auth::user()?->role !== 'admin') {
+        if (!in_array(Auth::user()?->role, ['admin', 'data'])) {
             abort(403, 'Unauthorized access');
         }
 

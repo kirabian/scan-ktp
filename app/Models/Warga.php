@@ -32,6 +32,7 @@ class Warga extends Model
         'pekerjaan',
         'foto_ktp_path',
         'foto_wajah_path',
+        'created_by_user_id',
     ];
 
     /**
@@ -44,6 +45,11 @@ class Warga extends Model
         return [
             'is_domisili_sesuai_ktp' => 'boolean',
         ];
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by_user_id');
     }
 
     public function historiSedekahs()

@@ -39,7 +39,11 @@
                                         <span wire:loading.remove wire:target="viewDetails({{ $warga->id }})">Lihat Detail & Foto</span>
                                         <span wire:loading wire:target="viewDetails({{ $warga->id }})">Memuat...</span>
                                     </button>
-                                    @if(Auth::user()->role === 'admin')
+                                    @if(in_array(Auth::user()->role, ['admin', 'data']))
+                                        <button wire:click="editWarga({{ $warga->id }})" class="text-amber-600 hover:text-amber-900 mr-3 relative">
+                                            <span wire:loading.remove wire:target="editWarga({{ $warga->id }})">Ubah</span>
+                                            <span wire:loading wire:target="editWarga({{ $warga->id }})">Memuat...</span>
+                                        </button>
                                         <button wire:click="deleteWarga({{ $warga->id }})" wire:confirm="Yakin ingin menghapus data warga ini beserta fotonya? Tindakan ini tidak bisa dibatalkan." class="text-red-600 hover:text-red-900">Hapus</button>
                                     @endif
                                 </td>
@@ -87,6 +91,8 @@
                                         <tr><td class="py-1 font-medium text-gray-600">Jenis Kelamin</td><td class="py-1">{{ $selectedWarga->jenis_kelamin }}</td></tr>
                                         <tr><td class="py-1 font-medium text-gray-600">Pekerjaan</td><td class="py-1">{{ $selectedWarga->pekerjaan }}</td></tr>
                                         <tr><td class="py-1 font-medium text-gray-600">No WhatsApp/HP</td><td class="py-1">{{ $selectedWarga->no_wa_hp }}</td></tr>
+                                        <tr><td class="py-1 font-medium text-gray-600">Diinput Oleh</td><td class="py-1 font-bold text-slate-800">{{ $selectedWarga->createdBy ? $selectedWarga->createdBy->name : 'Sistem/Tidak Diketahui' }}</td></tr>
+                                        <tr><td class="py-1 font-medium text-gray-600">Waktu Input</td><td class="py-1 text-slate-800">{{ $selectedWarga->created_at ? $selectedWarga->created_at->translatedFormat('d F Y H:i:s') : '-' }}</td></tr>
                                     </tbody>
                                 </table>
 
@@ -144,6 +150,106 @@
                             Tutup
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <!-- Edit Warga Modal -->
+        @if($isEditModalOpen)
+        <div class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="edit-modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+                    <form wire:submit.prevent="updateWarga">
+                        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                            <div class="flex justify-between items-center mb-5 border-b pb-2">
+                                <h3 class="text-xl leading-6 font-bold text-gray-900" id="edit-modal-title">
+                                    Ubah Data Warga
+                                </h3>
+                                <button type="button" wire:click="closeEditModal()" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">NIK</label>
+                                    <input type="text" wire:model.defer="editNik" class="w-full border-slate-300 rounded-xl shadow-sm focus:ring focus:ring-blue-600 focus:border-blue-600 text-sm">
+                                    @error('editNik') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Nama Lengkap</label>
+                                    <input type="text" wire:model.defer="editNama" class="w-full border-slate-300 rounded-xl shadow-sm focus:ring focus:ring-blue-600 focus:border-blue-600 text-sm">
+                                    @error('editNama') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Tempat & Tanggal Lahir (KTP)</label>
+                                    <input type="text" wire:model.defer="editTempatTglLahir" class="w-full border-slate-300 rounded-xl shadow-sm focus:ring focus:ring-blue-600 focus:border-blue-600 text-sm">
+                                    @error('editTempatTglLahir') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Jenis Kelamin</label>
+                                    <select wire:model.defer="editJenisKelamin" class="w-full border-slate-300 rounded-xl shadow-sm focus:ring focus:ring-blue-600 focus:border-blue-600 text-sm">
+                                        <option value="">-- Pilih Jenis Kelamin --</option>
+                                        <option value="LAKI-LAKI">LAKI-LAKI</option>
+                                        <option value="PEREMPUAN">PEREMPUAN</option>
+                                    </select>
+                                    @error('editJenisKelamin') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">No WhatsApp / HP</label>
+                                    <input type="text" wire:model.defer="editNoWaHp" class="w-full border-slate-300 rounded-xl shadow-sm focus:ring focus:ring-blue-600 focus:border-blue-600 text-sm">
+                                    @error('editNoWaHp') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Pekerjaan</label>
+                                    <input type="text" wire:model.defer="editPekerjaan" class="w-full border-slate-300 rounded-xl shadow-sm focus:ring focus:ring-blue-600 focus:border-blue-600 text-sm">
+                                    @error('editPekerjaan') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Alamat (KTP)</label>
+                                    <textarea wire:model.defer="editAlamatKtp" rows="2" class="w-full border-slate-300 rounded-xl shadow-sm focus:ring focus:ring-blue-600 focus:border-blue-600 text-sm"></textarea>
+                                    @error('editAlamatKtp') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">RT/RW (KTP)</label>
+                                    <input type="text" wire:model.defer="editRtRwKtp" class="w-full border-slate-300 rounded-xl shadow-sm focus:ring focus:ring-blue-600 focus:border-blue-600 text-sm">
+                                    @error('editRtRwKtp') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Kel/Desa (KTP)</label>
+                                    <input type="text" wire:model.defer="editKelDesaKtp" class="w-full border-slate-300 rounded-xl shadow-sm focus:ring focus:ring-blue-600 focus:border-blue-600 text-sm">
+                                    @error('editKelDesaKtp') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Kecamatan (KTP)</label>
+                                    <input type="text" wire:model.defer="editKecamatanKtp" class="w-full border-slate-300 rounded-xl shadow-sm focus:ring focus:ring-blue-600 focus:border-blue-600 text-sm">
+                                    @error('editKecamatanKtp') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                            <button type="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:w-auto sm:text-sm">
+                                Simpan Perubahan
+                            </button>
+                            <button type="button" wire:click="closeEditModal()" class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm">
+                                Batal
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

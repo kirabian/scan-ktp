@@ -41,8 +41,11 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/dashboard', Dashboard::class)->name('admin.dashboard');
         Route::get('/admin/users', UserManage::class)->name('admin.users');
-        Route::get('/admin/warga', WargaList::class)->name('admin.warga-list');
         Route::get('/admin/sedekah', SedekahList::class)->name('admin.sedekah-list');
+    });
+
+    Route::middleware('role:admin,data')->group(function () {
+        Route::get('/admin/warga', WargaList::class)->name('admin.warga-list');
     });
 
     // Security routes

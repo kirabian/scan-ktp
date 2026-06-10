@@ -29,9 +29,15 @@
                     <x-nav-link :href="route('admin.users')" :active="request()->routeIs('admin.users')">
                         {{ __('Data User') }}
                     </x-nav-link>
+                    @endif
+
+                    @if(Auth::user()->isAdmin() || Auth::user()->isData())
                     <x-nav-link :href="route('admin.warga-list')" :active="request()->routeIs('admin.warga-list')">
                         {{ __('Data Warga') }}
                     </x-nav-link>
+                    @endif
+
+                    @if(Auth::user()->isAdmin())
                     <x-nav-link :href="route('admin.sedekah-list')" :active="request()->routeIs('admin.sedekah-list')">
                         {{ __('Data Sedekah') }}
                     </x-nav-link>
@@ -103,9 +109,15 @@
             <x-responsive-nav-link :href="route('admin.users')" :active="request()->routeIs('admin.users')">
                 {{ __('Data User') }}
             </x-responsive-nav-link>
+            @endif
+
+            @if(Auth::user()->isAdmin() || Auth::user()->isData())
             <x-responsive-nav-link :href="route('admin.warga-list')" :active="request()->routeIs('admin.warga-list')">
                 {{ __('Data Warga') }}
             </x-responsive-nav-link>
+            @endif
+
+            @if(Auth::user()->isAdmin())
             <x-responsive-nav-link :href="route('admin.sedekah-list')" :active="request()->routeIs('admin.sedekah-list')">
                 {{ __('Data Sedekah') }}
             </x-responsive-nav-link>

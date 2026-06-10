@@ -226,6 +226,7 @@ class WargaForm extends Component
                 'pekerjaan' => $this->pekerjaan,
                 'foto_ktp_path' => $fotoKtpPath,
                 'foto_wajah_path' => $fotoWajahPath,
+                'created_by_user_id' => \Illuminate\Support\Facades\Auth::id(),
             ]);
 
             DB::commit();
@@ -246,6 +247,9 @@ class WargaForm extends Component
     #[Layout('layouts.app')]
     public function render()
     {
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('wargas', 'created_by_user_id')) {
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        }
         return view('livewire.data.warga-form');
     }
 }
