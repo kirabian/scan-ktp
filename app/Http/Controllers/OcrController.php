@@ -189,9 +189,10 @@ class OcrController extends Controller
 
         $width = imagesx($image);
         $height = imagesy($image);
-        if ($width > 1200) {
-            $scale = 1200 / $width;
-            $newWidth = 1200;
+        // Optimasi kecepatan: Turunkan maksimal lebar ke 800px agar memori & CPU tidak jebol di VPS
+        if ($width > 800) {
+            $scale = 800 / $width;
+            $newWidth = 800;
             $newHeight = (int) ($height * $scale);
             $resized = imagecreatetruecolor($newWidth, $newHeight);
             imagecopyresampled($resized, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);

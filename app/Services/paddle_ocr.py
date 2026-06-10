@@ -44,14 +44,20 @@ if not os.path.exists(image_path):
     sys.exit(1)
 
 try:
-    # Inisialisasi polos tanpa argumen ilegal agar tidak memicu 'Unknown argument'
-    ocr = PaddleOCR(
-        use_doc_orientation_classify=False,
-        use_doc_unwarping=False,
-        use_textline_orientation=False,
-        lang="en",
-        engine="transformers",  # Kebal dari crash oneDNN C++ di Windows
-    )
+    # Optimasi untuk VPS: Hanya gunakan 'transformers' engine jika jalan di Windows lokal.
+    # Di Linux/VPS kita gunakan engine native C++ yang berkali-kali lipat lebih ringan dan instan!
+    kwargs = {
+        "use_doc_orientation_classify": False,
+        "use_doc_unwarping": False,
+        "use_textline_orientation": False,
+        "use_angle_cls": False,
+        "show_log": False,
+        "lang": "en",
+    }
+    if os.name == 'nt': # Windows
+        kwargs["engine"] = "transformers"
+        
+    ocr = PaddleOCR(**kwargs)
 
     # Jalankan prediksi pipeline murni
     result = ocr.predict(image_path)
