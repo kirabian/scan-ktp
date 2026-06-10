@@ -50,7 +50,7 @@ class OcrController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Gagal memproses OCR dari API OCR.space. Error: ' . $errorMsg,
-                    'raw_text' => $response->body(),
+                    'raw_ocr_text' => $response->body(),
                 ]);
             }
 
@@ -63,7 +63,7 @@ class OcrController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Tidak ada teks yang terdeteksi dari gambar KTP ini.',
-                    'raw_text' => $response->body(),
+                    'raw_ocr_text' => $response->body(),
                 ]);
             }
 
