@@ -46,12 +46,12 @@ Route::middleware('auth')->group(function () {
     });
 
     // Security routes
-    Route::middleware('role:admin,security')->group(function () {
+    Route::middleware('role:admin,security,data')->group(function () {
         Route::get('/security/scan', ScanKtp::class)->name('security.scan');
     });
 
     // Data routes
-    Route::middleware('role:admin,data')->group(function () {
+    Route::middleware('role:admin,data,security')->group(function () {
         Route::get('/data/warga', WargaForm::class)->name('data.warga');
     });
 

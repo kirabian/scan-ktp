@@ -12,13 +12,11 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    @if(Auth::user()->isSecurity() || Auth::user()->isAdmin())
+                    @if(Auth::user()->isSecurity() || Auth::user()->isData() || Auth::user()->isAdmin())
                     <x-nav-link :href="route('security.scan')" :active="request()->routeIs('security.scan')">
                         {{ __('Scan KTP') }}
                     </x-nav-link>
-                    @endif
 
-                    @if(Auth::user()->isData() || Auth::user()->isAdmin())
                     <x-nav-link :href="route('data.warga')" :active="request()->routeIs('data.warga')">
                         {{ __('Input Data Warga') }}
                     </x-nav-link>
@@ -88,13 +86,11 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            @if(Auth::user()->isSecurity() || Auth::user()->isAdmin())
+            @if(Auth::user()->isSecurity() || Auth::user()->isData() || Auth::user()->isAdmin())
             <x-responsive-nav-link :href="route('security.scan')" :active="request()->routeIs('security.scan')">
                 {{ __('Scan KTP') }}
             </x-responsive-nav-link>
-            @endif
 
-            @if(Auth::user()->isData() || Auth::user()->isAdmin())
             <x-responsive-nav-link :href="route('data.warga')" :active="request()->routeIs('data.warga')">
                 {{ __('Input Data Warga') }}
             </x-responsive-nav-link>
