@@ -549,7 +549,7 @@ class OcrController extends Controller
             // Preprocessing khusus Tesseract untuk hasil pembacaan maksimal
             $tesseractPreparedPath = $this->preprocessForTesseract($imagePath);
 
-            $tesseract = new \ThiagoAlessio\TesseractOCR\TesseractOCR($tesseractPreparedPath);
+            $tesseract = new \thiagoalessio\TesseractOCR\TesseractOCR($tesseractPreparedPath);
             
             $binaryPath = env('TESSERACT_BINARY_PATH');
             if ($binaryPath) {
