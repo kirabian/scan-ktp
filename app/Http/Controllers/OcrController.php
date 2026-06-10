@@ -430,20 +430,82 @@ class OcrController extends Controller
     {
         try {
             $base64 = base64_encode(file_get_contents($imagePath));
-            $response = Http::post($gasUrl, [
-                'base64' => $base64,
-                'mimeType' => 'image/jpeg'
-            ]);
-            
-            if ($response->successful()) {
-                $result = $response->json();
-                if (isset($result['text'])) {
-                    return $result['text'];
-                }
+            $prefixedBase64 = 'data:image/jpeg;base64,' . $base64;
+
+            // Kita buat beberapa payload test secara berurutan
+            $payloads = [
+                // 1. Flat dengan standard base64 & support semua format key umum
+                [
+                    'base64' => $base64,
+                    'image' => $base64,
+                    'file' => $base64,
+                    'data' => $base64,
+                    'content' => $base64,
+                    'mimeType' => 'image/jpeg',
+                    'contentType' => 'image/jpeg',
+                    'type' => 'image/jpeg',
+                    'filename' => 'ktp.jpg',
+                    'fileName' => 'ktp.jpg',
+                    'name' => 'ktp.jpg',
+                ],
+                // 2. Flat dengan prefixed base64 (data:image/jpeg;base64,...)
+                [
+                    'base64' => $prefixedBase64,
+                    'image' => $prefixedBase64,
+                    'file' => $prefixedBase64,
+                    'data' => $prefixedBase64,
+                    'content' => $prefixedBase64,
+                    'mimeType' => 'image/jpeg',
+                    'contentType' => 'image/jpeg',
+                    'type' => 'image/jpeg',
+                    'filename' => 'ktp.jpg',
+                    'fileName' => 'ktp.jpg',
+                    'name' => 'ktp.jpg',
+                ],
+                // 3. Nested object format
+                [
+                    'file' => [
+                        'content' => $base64,
+                        'base64' => $base64,
+                        'mimeType' => 'image/jpeg',
+                        'contentType' => 'image/jpeg',
+                        'type' => 'image/jpeg',
+                        'filename' => 'ktp.jpg',
+                        'name' => 'ktp.jpg',
+                    ],
+                    'image' => [
+                        'content' => $base64,
+                        'base64' => $base64,
+                        'mimeType' => 'image/jpeg',
+                        'contentType' => 'image/jpeg',
+                        'type' => 'image/jpeg',
+                        'filename' => 'ktp.jpg',
+                        'name' => 'ktp.jpg',
+                    ]
+                ]
+            ];
+
+            foreach ($payloads as $index => $payload) {
+                \Illuminate\Support\Facades\Log::info("Trying GAS OCR Fallback payload attempt " . ($index + 1));
+                $response = Http::timeout(30)->post($gasUrl, $payload);
                 
-                $body = $response->body();
-                if (strlen($body) > 10) {
-                    return $body;
+                if ($response->successful()) {
+                    $body = $response->body();
+                    
+                    // Jika ada error internal newBlob atau SyntaxError, lewati ke payload berikutnya
+                    if (str_contains($body, 'newBlob') || str_contains($body, 'SyntaxError') || (str_contains($body, 'success') && str_contains($body, 'false') && !str_contains($body, 'text'))) {
+                        \Illuminate\Support\Facades\Log::warning("GAS OCR payload attempt " . ($index + 1) . " failed with error: " . $body);
+                        continue;
+                    }
+                    
+                    $result = $response->json();
+                    if (isset($result['text'])) {
+                        return $result['text'];
+                    }
+                    
+                    if (strlen($body) > 10) {
+                        return $body;
+                    }
                 }
             }
         } catch (\Exception $e) {
