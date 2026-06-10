@@ -273,7 +273,12 @@ class OcrController extends Controller
         try {
             $pythonBinary = env('PYTHON_BINARY_PATH', 'python');
             $scriptPath = base_path('app/Services/paddle_ocr.py');
-            $command = 'set FLAGS_use_onednn=0 && set FLAGS_use_mkldnn=0 && "' . $pythonBinary . '" "' . $scriptPath . '" "' . $imagePath . '" 2>&1';
+            
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                $command = 'set FLAGS_use_onednn=0 && set FLAGS_use_mkldnn=0 && "' . $pythonBinary . '" "' . $scriptPath . '" "' . $imagePath . '" 2>&1';
+            } else {
+                $command = 'export FLAGS_use_onednn=0; export FLAGS_use_mkldnn=0; "' . $pythonBinary . '" "' . $scriptPath . '" "' . $imagePath . '" 2>&1';
+            }
 
             $output = [];
             $returnVar = 0;
