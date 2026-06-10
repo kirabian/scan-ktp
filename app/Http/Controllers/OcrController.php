@@ -277,7 +277,8 @@ class OcrController extends Controller
             if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
                 $command = 'set FLAGS_use_onednn=0 && set FLAGS_use_mkldnn=0 && "' . $pythonBinary . '" "' . $scriptPath . '" "' . $imagePath . '" 2>&1';
             } else {
-                $command = 'FLAGS_use_onednn=0 FLAGS_use_mkldnn=0 "' . $pythonBinary . '" "' . $scriptPath . '" "' . $imagePath . '" 2>&1';
+                $storagePath = storage_path('app');
+                $command = 'HOME="' . $storagePath . '" FLAGS_use_onednn=0 FLAGS_use_mkldnn=0 "' . $pythonBinary . '" "' . $scriptPath . '" "' . $imagePath . '" 2>&1';
             }
 
             $output = [];
