@@ -1,101 +1,104 @@
-import sys
 import os
+import sys
+import socket
+import json
+import threading
 
-# Mematikan pengecekan koneksi model hoster agar proses scan instan
 os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
-
-# Mengamankan flag oneDNN untuk Windows CPU environment
 os.environ["FLAGS_use_onednn"] = "0"
 os.environ["FLAGS_use_mkldnn"] = "0"
 
-# Memaksa sys.stdout menggunakan encoding UTF-8 agar string aman dibaca PHP
 sys.stdout.reconfigure(encoding="utf-8")
 
+print("[Daemon] Loading PaddleOCR model...", flush=True)
+
 try:
-    # --------------------------------------------------------------------------
-    # FORCED OVERRIDE DEFAULT CONFIG PADDLEX
-    # Kita intercept konfigurasi default pipelines milik PaddleX langsung ke model mobile
-    # --------------------------------------------------------------------------
     import paddlex
 
     if hasattr(paddlex, "inference") and hasattr(paddlex.inference, "pipelines"):
         from paddlex.inference.pipelines.ocr import OCRPipeline
 
-        # Setel ulang properti class default secara global sebelum class diinstansiasi
-        # Ini akan memaksa sistem mendownload dan memakai versi mobile yang super ringan (1-2 detik)
         OCRPipeline._default_det_model = "PP-OCRv5_mobile_det"
         OCRPipeline._default_rec_model = "en_PP-OCRv5_mobile_rec"
 
     from paddleocr import PaddleOCR
+
+    ocr = PaddleOCR(
+        use_doc_orientation_classify=False,
+        use_doc_unwarping=False,
+        use_textline_orientation=False,
+        lang="en",
+    )
+    print("[Daemon] Model loaded. Ready.", flush=True)
 except Exception as e:
-    print(f"ERROR: Framework initialization failed: {str(e)}")
+    print(f"[Daemon] FATAL: {e}", flush=True)
     sys.exit(1)
 
-if len(sys.argv) < 2:
-    print("ERROR: Please provide image path")
-    sys.exit(1)
 
-image_path = (
-    sys.argv[2 if sys.argv[1] == "--" else 1] if len(sys.argv) > 2 else sys.argv[1]
-)
+def handle_client(conn):
+    try:
+        data = b""
+        while True:
+            chunk = conn.recv(4096)
+            if not chunk:
+                break
+            data += chunk
+            if data.endswith(b"\n"):
+                break
 
-if not os.path.exists(image_path):
-    print(f"ERROR: Image not found at {image_path}")
-    sys.exit(1)
+        image_path = data.decode("utf-8").strip()
 
-try:
-    # Optimasi untuk VPS: Hanya gunakan 'transformers' engine jika jalan di Windows lokal.
-    # Di Linux/VPS kita gunakan engine native C++ yang berkali-kali lipat lebih ringan dan instan!
-    kwargs = {
-        "use_doc_orientation_classify": False,
-        "use_doc_unwarping": False,
-        "use_textline_orientation": False,
-        "lang": "en",
-    }
-    if os.name == 'nt': # Windows
-        kwargs["engine"] = "transformers"
-        
-    ocr = PaddleOCR(**kwargs)
+        if not os.path.exists(image_path):
+            conn.sendall(
+                json.dumps({"error": f"File not found: {image_path}"}).encode() + b"\n"
+            )
+            return
 
-    # Jalankan prediksi pipeline murni
-    result = ocr.predict(image_path)
+        result = ocr.predict(image_path)
+        texts = []
 
-    texts = []
-    if result:
-        if not isinstance(result, list):
-            try:
+        if result:
+            if not isinstance(result, list):
                 result = list(result)
-            except Exception:
-                pass
+            for res in result:
+                if isinstance(res, dict):
+                    if "rec_texts" in res:
+                        texts.extend(res["rec_texts"])
+                    elif "texts" in res:
+                        texts.extend(res["texts"])
+                elif isinstance(res, list):
+                    for line in res:
+                        if (
+                            isinstance(line, list)
+                            and len(line) > 1
+                            and isinstance(line[1], tuple)
+                        ):
+                            texts.append(line[1][0])
+                        elif isinstance(line, str):
+                            texts.append(line)
 
-        for res in result:
-            # Format Dictionary (Standard PaddleX / Transformers)
-            if isinstance(res, dict):
-                if "rec_texts" in res and isinstance(res["rec_texts"], list):
-                    texts.extend(res["rec_texts"])
-                elif "texts" in res and isinstance(res["texts"], list):
-                    texts.extend(res["texts"])
+        texts = [t.strip() for t in texts if t and str(t).strip()]
+        output = "\n".join(texts) if texts else "ERROR: Teks kosong"
+        conn.sendall(json.dumps({"text": output}).encode() + b"\n")
 
-            # Format List Tradisional [[box, (text, score)]]
-            elif isinstance(res, list):
-                for line in res:
-                    if (
-                        isinstance(line, list)
-                        and len(line) > 1
-                        and isinstance(line[1], tuple)
-                    ):
-                        texts.append(line[1][0])
-                    elif isinstance(line, str):
-                        texts.append(line)
+    except Exception as e:
+        conn.sendall(json.dumps({"error": str(e)}).encode() + b"\n")
+    finally:
+        conn.close()
 
-    # Pembersihan whitespace akhir
-    texts = [t.strip() for t in texts if t and str(t).strip()]
 
-    if texts:
-        print("\n".join(texts))
-    else:
-        print(f"ERROR: Teks kosong. Raw output: {str(result)}")
+SOCKET_PATH = "/tmp/paddleocr_daemon.sock"
 
-except Exception as e:
-    print(f"ERROR: OCR failed: {str(e)}")
-    sys.exit(1)
+if os.path.exists(SOCKET_PATH):
+    os.remove(SOCKET_PATH)
+
+server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+server.bind(SOCKET_PATH)
+os.chmod(SOCKET_PATH, 0o777)
+server.listen(5)
+
+print(f"[Daemon] Listening on {SOCKET_PATH}", flush=True)
+
+while True:
+    conn, _ = server.accept()
+    threading.Thread(target=handle_client, args=(conn,), daemon=True).start()
