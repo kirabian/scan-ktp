@@ -50,7 +50,6 @@ try:
         "use_doc_orientation_classify": False,
         "use_doc_unwarping": False,
         "use_textline_orientation": False,
-        "use_angle_cls": False,
         "show_log": False,
         "lang": "en",
     }
