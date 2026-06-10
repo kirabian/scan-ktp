@@ -70,6 +70,15 @@ class ImageService
         $maxHeight = 1200;
         $ratio = min($maxWidth / $origWidth, $maxHeight / $origHeight);
 
+        // Skip processing if image is already small enough, valid JPEG, and not rotated
+        if ($ratio >= 1 && $deg == 0 && $type == IMAGETYPE_JPEG && filesize($imagePath) <= 300000) {
+            Storage::disk('local')->put($path, file_get_contents($imagePath));
+            if (!$file instanceof UploadedFile) {
+                unlink($imagePath);
+            }
+            return $path;
+        }
+
         if ($ratio < 1) {
             $newWidth = $origWidth * $ratio;
             $newHeight = $origHeight * $ratio;
@@ -109,13 +118,20 @@ class ImageService
         // Save to temporary file with compression
         $tempOutput = sys_get_temp_dir() . '/' . uniqid() . '.jpg';
         
-        // Start with 80% quality
-        $quality = 80;
+        // Start with 75% quality for a good balance of size and visual
+        $quality = 75;
         imagejpeg($newImage, $tempOutput, $quality);
         
-        // Reduce quality if file size is > 300KB
-        while (filesize($tempOutput) > 300000 && $quality > 10) {
-            $quality -= 10;
+        $size = filesize($tempOutput);
+        if ($size > 300000) {
+            // Drop quality based on size to avoid multiple expensive disk writes
+            if ($size > 1500000) {
+                $quality = 30;
+            } elseif ($size > 800000) {
+                $quality = 40;
+            } else {
+                $quality = 50;
+            }
             imagejpeg($newImage, $tempOutput, $quality);
         }
 
