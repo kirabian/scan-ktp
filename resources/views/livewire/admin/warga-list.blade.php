@@ -35,7 +35,10 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $warga->no_wa_hp }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button wire:click="viewDetails({{ $warga->id }})" class="text-blue-600 hover:text-blue-900 mr-3">Lihat Detail & Foto</button>
+                                    <button wire:click="viewDetails({{ $warga->id }})" class="text-blue-600 hover:text-blue-900 mr-3 relative">
+                                        <span wire:loading.remove wire:target="viewDetails({{ $warga->id }})">Lihat Detail & Foto</span>
+                                        <span wire:loading wire:target="viewDetails({{ $warga->id }})">Memuat...</span>
+                                    </button>
                                     @if(Auth::user()->role === 'admin')
                                         <button wire:click="deleteWarga({{ $warga->id }})" wire:confirm="Yakin ingin menghapus data warga ini beserta fotonya? Tindakan ini tidak bisa dibatalkan." class="text-red-600 hover:text-red-900">Hapus</button>
                                     @endif
