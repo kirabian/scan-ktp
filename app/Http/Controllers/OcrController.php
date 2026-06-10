@@ -525,6 +525,10 @@ class OcrController extends Controller
 
     private function isTesseractAvailable()
     {
+        if (!function_exists('exec')) {
+            return false;
+        }
+
         $executable = env('TESSERACT_BINARY_PATH', 'tesseract');
         
         // Di Windows, gunakan command 'where', sedangkan di Linux/OSX gunakan 'which'
