@@ -111,18 +111,24 @@
                             <!-- Photos -->
                             <div>
                                 <h4 class="font-semibold text-gray-700 border-b pb-1 mb-3">Foto KTP</h4>
-                                <div class="bg-gray-100 rounded border border-gray-200 h-48 flex items-center justify-center mb-4 overflow-hidden">
+                                <div class="bg-gray-100 rounded border border-gray-200 h-48 flex items-center justify-center mb-4 overflow-hidden relative">
                                     @if($selectedWarga->foto_ktp_path)
-                                        <img src="{{ route('secure.image', ['folder' => 'ktp', 'filename' => basename($selectedWarga->foto_ktp_path)]) }}" alt="Foto KTP" class="max-h-full max-w-full object-contain">
+                                        <div wire:loading class="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-75 z-10">
+                                            <span class="text-sm text-gray-500 font-bold">Memuat...</span>
+                                        </div>
+                                        <img src="{{ route('secure.image', ['folder' => 'ktp', 'filename' => basename($selectedWarga->foto_ktp_path)]) }}" alt="Foto KTP" loading="lazy" class="max-h-full max-w-full object-contain">
                                     @else
                                         <span class="text-gray-400">Tidak ada foto KTP</span>
                                     @endif
                                 </div>
 
                                 <h4 class="font-semibold text-gray-700 border-b pb-1 mb-3">Foto Wajah</h4>
-                                <div class="bg-gray-100 rounded border border-gray-200 h-48 flex items-center justify-center overflow-hidden">
+                                <div class="bg-gray-100 rounded border border-gray-200 h-48 flex items-center justify-center overflow-hidden relative">
                                     @if($selectedWarga->foto_wajah_path)
-                                        <img src="{{ route('secure.image', ['folder' => 'wajah', 'filename' => basename($selectedWarga->foto_wajah_path)]) }}" alt="Foto Wajah" class="max-h-full max-w-full object-contain">
+                                        <div wire:loading class="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-75 z-10">
+                                            <span class="text-sm text-gray-500 font-bold">Memuat...</span>
+                                        </div>
+                                        <img src="{{ route('secure.image', ['folder' => 'wajah', 'filename' => basename($selectedWarga->foto_wajah_path)]) }}" alt="Foto Wajah" loading="lazy" class="max-h-full max-w-full object-contain">
                                     @else
                                         <span class="text-gray-400">Tidak ada foto wajah</span>
                                     @endif

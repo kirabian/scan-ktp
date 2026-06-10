@@ -19,8 +19,14 @@ class SecureImageController extends Controller
         }
 
         $file = Storage::disk('local')->get($path);
-        $type = Storage::disk('local')->mimeType($path);
+        
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('local');
+        $type = $disk->mimeType($path);
 
-        return response($file, 200)->header('Content-Type', $type);
+        // Gunakan cache agar browser tidak perlu mendownload ulang setiap kali modal dibuka
+        return response($file, 200)
+            ->header('Content-Type', $type)
+            ->header('Cache-Control', 'public, max-age=31536000, immutable');
     }
 }
