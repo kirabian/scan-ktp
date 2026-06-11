@@ -230,14 +230,24 @@
                         }
                         
                         if (result.success && result.nik && !result.nik.startsWith('RAW:')) {
+                            // Update input secara manual di DOM agar Livewire sinkron
+                            const manualInput = document.getElementById('manual_nik');
+                            if(manualInput) {
+                                manualInput.value = result.nik;
+                            }
                             Livewire.dispatch('nikScanned', { nik: result.nik });
                         } else {
                             let rawNik = result.nik ? result.nik.replace('RAW:', '').trim() : '';
                             if (rawNik) {
+                                // Update input secara manual di DOM
+                                const manualInput = document.getElementById('manual_nik');
+                                if(manualInput) {
+                                    manualInput.value = rawNik;
+                                }
                                 @this.set('manualNik', rawNik);
-                                alert("NIK dari foto kurang jelas/tidak lengkap (" + rawNik + "). Angka telah dimasukkan ke kolom Input Manual, silakan lengkapi/koreksi menjadi 16 digit lalu klik Cari Data.");
+                                @this.set('errorMessage', "NIK dari foto kurang jelas/tidak lengkap (" + rawNik + "). Angka telah dimasukkan ke kolom Input Manual, silakan lengkapi/koreksi menjadi 16 digit lalu klik Cari Data.");
                             } else {
-                                alert("Gagal membaca NIK otomatis dari KTP. Silakan potret ulang atau ketik NIK secara manual.");
+                                @this.set('errorMessage', "Gagal membaca NIK otomatis dari KTP. Silakan potret ulang atau ketik NIK secara manual.");
                             }
                             document.getElementById('loading-indicator').classList.add('hidden');
                             ktpInput.value = '';
