@@ -59,13 +59,13 @@ class Dashboard extends Component
         $selectedStats = null;
         $recentLogs = collect();
         $demografiDesa = collect();
-        $demografiUsia = collect([
+        $demografiUsia = [
             'Anak-anak (0-11)' => 0,
             'Remaja (12-25)' => 0,
             'Dewasa (26-45)' => 0,
             'Lansia (46+)' => 0,
             'Tidak Diketahui' => 0
-        ]);
+        ];
 
         if ($this->selectedEventId) {
             $selectedEvent = Event::find($this->selectedEventId);
@@ -93,10 +93,10 @@ class Dashboard extends Component
                 // Hitung Demografi untuk event yang dipilih (berdasarkan warga_id unik)
                 $wargaIds = (clone $q)->select('warga_id')->distinct()->pluck('warga_id');
                 if ($wargaIds->isNotEmpty()) {
-                    $wargaHadir = Warga::whereIn('id', $wargaIds)->get();
+                    $wargaHadir = Warga::findMany($wargaIds);
                     
                     // Kelompokkan berdasarkan Desa
-                    $demografiDesa = $wargaHadir->groupBy('kel_desa_ktp')->map->count()->sortDesc();
+                    $demografiDesa = $wargaHadir->groupBy('kel_desa_ktp')->map(fn($group) => $group->count())->sortDesc();
                     
                     // Kelompokkan berdasarkan Usia
                     foreach ($wargaHadir as $w) {
