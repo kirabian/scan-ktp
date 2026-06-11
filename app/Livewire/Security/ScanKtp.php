@@ -23,6 +23,7 @@ class ScanKtp extends Component
     public $showDoubleWarning = false;
     public $fotoWajahDarurat = null;
     public $showConfirmation = false;
+    public $kategoriUsia = '';
 
     // Event properties
     public $activeEvents = [];
@@ -72,6 +73,7 @@ class ScanKtp extends Component
         $this->showDoubleWarning = false;
         $this->fotoWajahDarurat = null;
         $this->showConfirmation = false;
+        $this->kategoriUsia = '';
 
         $this->warga = Warga::where('nik', $this->nik)->first();
 
@@ -79,6 +81,16 @@ class ScanKtp extends Component
             $this->errorMessage = 'Data warga tidak ditemukan! (NIK Terdeteksi: ' . $this->nik . ').';
             $this->manualNik = $this->nik;
             return;
+        }
+        
+        $umur = $this->warga->umur;
+        if ($umur === '-' || !is_numeric($umur)) {
+            $this->kategoriUsia = 'Tidak Diketahui';
+        } else {
+            if ($umur <= 11) $this->kategoriUsia = 'Anak-anak';
+            elseif ($umur <= 25) $this->kategoriUsia = 'Remaja (Usia Aman)';
+            elseif ($umur <= 45) $this->kategoriUsia = 'Dewasa (Usia Aman)';
+            else $this->kategoriUsia = 'Lansia (Usia Aman)';
         }
 
         $today = Carbon::today();

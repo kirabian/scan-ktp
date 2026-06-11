@@ -58,6 +58,15 @@ class Dashboard extends Component
         // Data untuk event yang dipilih
         $selectedStats = null;
         $recentLogs = collect();
+        $demografiDesa = collect();
+        $demografiUsia = collect([
+            'Anak-anak (0-11)' => 0,
+            'Remaja (12-25)' => 0,
+            'Dewasa (26-45)' => 0,
+            'Lansia (46+)' => 0,
+            'Tidak Diketahui' => 0
+        ]);
+
         if ($this->selectedEventId) {
             $selectedEvent = Event::find($this->selectedEventId);
             if ($selectedEvent) {
@@ -80,6 +89,28 @@ class Dashboard extends Component
                     ->orderBy('waktu_ambil', 'desc')
                     ->take(30)
                     ->get();
+                    
+                // Hitung Demografi untuk event yang dipilih (berdasarkan warga_id unik)
+                $wargaIds = (clone $q)->select('warga_id')->distinct()->pluck('warga_id');
+                if ($wargaIds->isNotEmpty()) {
+                    $wargaHadir = Warga::whereIn('id', $wargaIds)->get();
+                    
+                    // Kelompokkan berdasarkan Desa
+                    $demografiDesa = $wargaHadir->groupBy('kel_desa_ktp')->map->count()->sortDesc();
+                    
+                    // Kelompokkan berdasarkan Usia
+                    foreach ($wargaHadir as $w) {
+                        $umur = $w->umur;
+                        if ($umur === '-' || !is_numeric($umur)) {
+                            $demografiUsia['Tidak Diketahui']++;
+                        } else {
+                            if ($umur <= 11) $demografiUsia['Anak-anak (0-11)']++;
+                            elseif ($umur <= 25) $demografiUsia['Remaja (12-25)']++;
+                            elseif ($umur <= 45) $demografiUsia['Dewasa (26-45)']++;
+                            else $demografiUsia['Lansia (46+)']++;
+                        }
+                    }
+                }
             }
         }
 
@@ -89,6 +120,8 @@ class Dashboard extends Component
             'selectedStats' => $selectedStats,
             'recentLogs' => $recentLogs,
             'totalWarga' => $totalWarga,
+            'demografiDesa' => $demografiDesa,
+            'demografiUsia' => $demografiUsia,
         ]);
     }
 }

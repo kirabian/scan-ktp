@@ -67,6 +67,39 @@
             </div>
         </div>
 
+        {{-- Demografi Kehadiran --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {{-- Desa --}}
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h3 class="text-lg font-bold text-slate-800 mb-4">Kehadiran per Desa</h3>
+                <div class="space-y-3 max-h-64 overflow-y-auto pr-2">
+                    @forelse($demografiDesa as $desa => $jumlah)
+                    <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span class="text-sm font-bold text-slate-700 uppercase">{{ $desa ?? 'TIDAK DIKETAHUI' }}</span>
+                        <span class="text-sm font-bold text-blue-700 bg-blue-100 px-3 py-1 rounded-full">{{ $jumlah }} Orang</span>
+                    </div>
+                    @empty
+                    <p class="text-sm text-slate-500 italic text-center py-4">Belum ada data warga</p>
+                    @endforelse
+                </div>
+            </div>
+
+            {{-- Usia --}}
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h3 class="text-lg font-bold text-slate-800 mb-4">Kategori Usia</h3>
+                <div class="space-y-3 max-h-64 overflow-y-auto pr-2">
+                    @foreach($demografiUsia as $kategori => $jumlah)
+                    @if($jumlah > 0 || $kategori != 'Tidak Diketahui')
+                    <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span class="text-sm font-bold text-slate-700">{{ $kategori }}</span>
+                        <span class="text-sm font-bold text-blue-700 bg-blue-100 px-3 py-1 rounded-full">{{ $jumlah }} Orang</span>
+                    </div>
+                    @endif
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
         {{-- Recent Log --}}
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-8" wire:poll.10s>
             <div class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between sm:items-center gap-4">

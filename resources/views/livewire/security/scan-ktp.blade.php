@@ -102,15 +102,17 @@
 
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
                         <p class="text-xs text-slate-500 uppercase tracking-wider font-bold mb-1">Nama Lengkap</p>
-                        <p class="text-lg font-bold text-slate-800">{{ $warga->nama }} <span class="text-sm font-bold text-blue-600 ml-1">(Umur: {{ $warga->umur }} Thn)</span></p>
+                        <p class="text-lg font-bold text-slate-800">
+                            {{ $warga->nama }} 
+                            <span class="text-sm font-bold text-blue-600 ml-1 block sm:inline mt-1 sm:mt-0">
+                                ({{ $warga->umur }} Thn - {{ $kategoriUsia }})
+                            </span>
+                        </p>
                         
-                        <p class="text-xs text-slate-500 uppercase tracking-wider font-bold mb-1 mt-3">Alamat Domisili</p>
-                        <p class="text-sm font-medium text-slate-700">
-                            @if($warga->is_domisili_sesuai_ktp)
-                                {{ $warga->alamat_ktp }} (Sesuai KTP)
-                            @else
-                                {{ $warga->alamat_detail_domisili }}, {{ $warga->kel_desa_domisili }}, {{ $warga->kecamatan_domisili }}
-                            @endif
+                        <p class="text-xs text-slate-500 uppercase tracking-wider font-bold mb-1 mt-3">Area KTP</p>
+                        <p class="text-sm font-medium text-slate-700 leading-relaxed">
+                            <span class="block">Desa: <strong>{{ $warga->kel_desa_ktp ?? '-' }}</strong></span>
+                            <span class="block">Kecamatan: <strong>{{ $warga->kecamatan_ktp ?? '-' }}</strong></span>
                         </p>
 
                         @if($statusPengambilan)
