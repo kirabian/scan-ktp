@@ -30,11 +30,11 @@
                 <p class="text-xs text-slate-400 mt-2">kali scan tercatat</p>
             </div>
             
-            {{-- Warga Unik --}}
+            {{-- Total Hadir --}}
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Warga Unik</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Total Hadir</p>
                 <p class="text-3xl font-bold text-blue-700">{{ $selectedStats['total_unik'] }}</p>
-                <p class="text-xs text-slate-400 mt-2">warga berbeda</p>
+                <p class="text-xs text-slate-400 mt-2">warga yang hadir</p>
             </div>
             
             {{-- Ganda --}}
@@ -167,7 +167,7 @@
                         <p class="text-2xl font-bold text-blue-700">{{ $stat['total_masuk'] }}</p>
                     </div>
                     <div class="bg-slate-50/80 p-5 lg:p-6 rounded-xl border border-slate-100">
-                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Unik</p>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Hadir</p>
                         <p class="text-2xl font-bold text-blue-700">{{ $stat['total_unik'] }}</p>
                     </div>
                     <div class="bg-slate-50/80 p-5 lg:p-6 rounded-xl border border-slate-100">
