@@ -136,8 +136,7 @@
                 <span class="text-slate-400 font-bold text-2xl">?</span>
             </div>
             <h3 class="text-xl font-bold text-slate-800 mb-2">Belum ada event aktif</h3>
-            <p class="text-sm text-slate-500 mb-8">Minta admin untuk membuat event terlebih dahulu untuk memulai pemantauan real-time.</p>
-            <button class="bg-blue-700 text-white font-bold px-8 py-2.5 rounded-lg hover:bg-blue-800 transition-colors shadow-sm">Hubungi Admin</button>
+            <p class="text-sm text-slate-500 mb-2">Minta admin untuk membuat event terlebih dahulu untuk memulai pemantauan real-time.</p>
         </div>
     @endif
 
@@ -162,20 +161,20 @@
                     @endif
                 </div>
                 
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-4">
-                    <div class="bg-slate-50/80 p-4 rounded-xl border border-slate-100">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-5">
+                    <div class="bg-slate-50/80 p-5 lg:p-6 rounded-xl border border-slate-100">
                         <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Masuk</p>
                         <p class="text-2xl font-bold text-blue-700">{{ $stat['total_masuk'] }}</p>
                     </div>
-                    <div class="bg-slate-50/80 p-4 rounded-xl border border-slate-100">
+                    <div class="bg-slate-50/80 p-5 lg:p-6 rounded-xl border border-slate-100">
                         <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Unik</p>
                         <p class="text-2xl font-bold text-blue-700">{{ $stat['total_unik'] }}</p>
                     </div>
-                    <div class="bg-slate-50/80 p-4 rounded-xl border border-slate-100">
+                    <div class="bg-slate-50/80 p-5 lg:p-6 rounded-xl border border-slate-100">
                         <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Ganda</p>
                         <p class="text-2xl font-bold text-blue-700">{{ $stat['total_ganda'] }}</p>
                     </div>
-                    <div class="bg-slate-50/80 p-4 rounded-xl border border-slate-100 flex flex-col justify-between">
+                    <div class="bg-slate-50/80 p-5 lg:p-6 rounded-xl border border-slate-100 flex flex-col justify-between">
                         <div>
                             <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Partisipasi</p>
                             <p class="text-2xl font-bold text-slate-800 mb-3">{{ $stat['persentase'] }}%</p>
