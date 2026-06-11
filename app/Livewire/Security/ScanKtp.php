@@ -5,6 +5,7 @@ namespace App\Livewire\Security;
 use Livewire\Component;
 use App\Models\Warga;
 use App\Models\HistoriSedekah;
+use App\Models\Event;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Services\ImageService;
@@ -23,7 +24,44 @@ class ScanKtp extends Component
     public $fotoWajahDarurat = null;
     public $showConfirmation = false;
 
+    // Event properties
+    public $activeEvents = [];
+    public $selectedEventId = null;
+    public $showEventSelector = false;
+    public $currentEvent = null;
+
     protected $listeners = ['nikScanned'];
+
+    public function mount()
+    {
+        $this->loadActiveEvents();
+    }
+
+    public function loadActiveEvents()
+    {
+        $this->activeEvents = Event::currentlyActive()->get()->toArray();
+
+        if (count($this->activeEvents) === 1) {
+            $this->selectedEventId = $this->activeEvents[0]['id'];
+            $this->currentEvent = $this->activeEvents[0];
+            $this->showEventSelector = false;
+        } elseif (count($this->activeEvents) > 1) {
+            $this->showEventSelector = true;
+            $this->selectedEventId = null;
+            $this->currentEvent = null;
+        } else {
+            $this->showEventSelector = false;
+            $this->selectedEventId = null;
+            $this->currentEvent = null;
+        }
+    }
+
+    public function selectEvent($eventId)
+    {
+        $this->selectedEventId = $eventId;
+        $this->currentEvent = Event::find($eventId)?->toArray();
+        $this->showEventSelector = false;
+    }
 
     public function nikScanned($nik)
     {
@@ -45,16 +83,34 @@ class ScanKtp extends Component
 
         $today = Carbon::today();
         
-        $historiTerakhir = HistoriSedekah::where('warga_id', $this->warga->id)
-                                         ->orderBy('waktu_ambil', 'desc')
-                                         ->first();
+        // Cek histori berdasarkan event yang dipilih (jika ada)
+        $historiQuery = HistoriSedekah::where('warga_id', $this->warga->id);
+        if ($this->selectedEventId) {
+            $historiQuery->where('event_id', $this->selectedEventId);
+        }
+        $historiTerakhir = $historiQuery->orderBy('waktu_ambil', 'desc')->first();
 
         if ($historiTerakhir) {
-            $this->statusPengambilan = 'Terakhir dapat sedekah: ' . $historiTerakhir->waktu_ambil->translatedFormat('d M Y H:i');
+            $eventLabel = $historiTerakhir->event ? ' (Event: ' . $historiTerakhir->event->judul . ')' : '';
+            $this->statusPengambilan = 'Terakhir dapat sedekah: ' . $historiTerakhir->waktu_ambil->translatedFormat('d M Y H:i') . $eventLabel;
             
             if ($historiTerakhir->waktu_ambil->isSameDay($today)) {
                 $this->showDoubleWarning = true;
-                $this->warningMessage = 'Sudah di scan hari ini jam: ' . $historiTerakhir->waktu_ambil->format('H:i') . '. Yakin mau dilanjutkan lagi?';
+                $this->warningMessage = 'Sudah di scan hari ini jam: ' . $historiTerakhir->waktu_ambil->format('H:i') . $eventLabel . '. Yakin mau dilanjutkan lagi?';
+            }
+        } else {
+            // Cek juga histori tanpa event atau event lain untuk info
+            $historiGlobal = HistoriSedekah::where('warga_id', $this->warga->id)
+                ->orderBy('waktu_ambil', 'desc')
+                ->first();
+            if ($historiGlobal) {
+                $eventLabel = $historiGlobal->event ? ' (Event: ' . $historiGlobal->event->judul . ')' : '';
+                $this->statusPengambilan = 'Terakhir dapat sedekah: ' . $historiGlobal->waktu_ambil->translatedFormat('d M Y H:i') . $eventLabel;
+                
+                if ($historiGlobal->waktu_ambil->isSameDay($today)) {
+                    $this->showDoubleWarning = true;
+                    $this->warningMessage = 'Warga ini sudah di scan hari ini jam: ' . $historiGlobal->waktu_ambil->format('H:i') . $eventLabel . '. Yakin mau dilanjutkan untuk event ini?';
+                }
             }
         }
     }
@@ -90,12 +146,14 @@ class ScanKtp extends Component
     public function catatPengambilanNormal()
     {
         HistoriSedekah::create([
+            'event_id' => $this->selectedEventId,
             'warga_id' => $this->warga->id,
             'petugas_security_id' => Auth::id(),
             'waktu_ambil' => now(),
         ]);
 
-        session()->flash('success', 'Data pengambilan sedekah berhasil dicatat.');
+        $eventLabel = $this->currentEvent ? ' untuk event: ' . $this->currentEvent['judul'] : '';
+        session()->flash('success', 'Data pengambilan sedekah berhasil dicatat' . $eventLabel . '.');
         $this->resetScan();
     }
 
@@ -105,13 +163,15 @@ class ScanKtp extends Component
         $fotoPath = $imageService->compressAndSaveSecurely($fotoDataUrl, 'darurat');
 
         HistoriSedekah::create([
+            'event_id' => $this->selectedEventId,
             'warga_id' => $this->warga->id,
             'petugas_security_id' => Auth::id(),
             'waktu_ambil' => now(),
             'foto_penerima_path' => $fotoPath,
         ]);
 
-        session()->flash('success', 'Pengambilan ganda (darurat) berhasil dicatat beserta foto bukti.');
+        $eventLabel = $this->currentEvent ? ' untuk event: ' . $this->currentEvent['judul'] : '';
+        session()->flash('success', 'Pengambilan ganda (darurat) berhasil dicatat beserta foto bukti' . $eventLabel . '.');
         $this->resetScan();
     }
 

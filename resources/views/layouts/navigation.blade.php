@@ -26,6 +26,9 @@
                     <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                         {{ __('Dashboard Admin') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('admin.events')" :active="request()->routeIs('admin.events')">
+                        {{ __('Kelola Event') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('admin.users')" :active="request()->routeIs('admin.users')">
                         {{ __('Data User') }}
                     </x-nav-link>
@@ -105,6 +108,9 @@
             @if(Auth::user()->isAdmin())
             <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                 {{ __('Dashboard Admin') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('admin.events')" :active="request()->routeIs('admin.events')">
+                {{ __('Kelola Event') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('admin.users')" :active="request()->routeIs('admin.users')">
                 {{ __('Data User') }}

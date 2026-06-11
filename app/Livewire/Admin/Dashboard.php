@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use Livewire\Component;
 use App\Models\Warga;
 use App\Models\HistoriSedekah;
+use App\Models\Event;
 use Carbon\Carbon;
 use Livewire\Attributes\Layout;
 
@@ -23,7 +24,16 @@ class Dashboard extends Component
                                                 ->whereNotNull('foto_penerima_path')
                                                 ->count();
 
-        $logHistori = HistoriSedekah::with(['warga', 'petugasSecurity'])
+        // Event stats
+        $activeEvents = Event::currentlyActive()->get();
+        $totalEvents = Event::count();
+        $sedekahPerEvent = HistoriSedekah::selectRaw('event_id, COUNT(*) as total')
+            ->whereDate('waktu_ambil', $today)
+            ->groupBy('event_id')
+            ->with('event')
+            ->get();
+
+        $logHistori = HistoriSedekah::with(['warga', 'petugasSecurity', 'event'])
                                     ->orderBy('waktu_ambil', 'desc')
                                     ->take(50)
                                     ->get();
@@ -32,6 +42,9 @@ class Dashboard extends Component
             'totalWarga' => $totalWarga,
             'totalSedekahHariIni' => $totalSedekahHariIni,
             'totalKasusGandaHariIni' => $totalKasusGandaHariIni,
+            'activeEvents' => $activeEvents,
+            'totalEvents' => $totalEvents,
+            'sedekahPerEvent' => $sedekahPerEvent,
             'logHistori' => $logHistori,
         ]);
     }

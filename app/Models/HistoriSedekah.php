@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class HistoriSedekah extends Model
 {
     protected $fillable = [
+        'event_id',
         'warga_id',
         'petugas_security_id',
         'waktu_ambil',
@@ -19,6 +20,11 @@ class HistoriSedekah extends Model
         return [
             'waktu_ambil' => 'datetime',
         ];
+    }
+
+    public function event(): BelongsTo
+    {
+        return $this->belongsTo(Event::class);
     }
 
     public function warga(): BelongsTo

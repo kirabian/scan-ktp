@@ -1,8 +1,33 @@
 <div class="max-w-md mx-auto py-6 sm:px-6 lg:px-8">
+    {{-- Event Selector (tampil jika ada >1 event aktif) --}}
+    @if($showEventSelector && count($activeEvents) > 0)
+    <div class="mb-4 bg-yellow-50 border border-yellow-300 rounded-2xl p-4 shadow-sm">
+        <p class="text-sm font-bold text-yellow-800 mb-2">⚠️ Ada {{ count($activeEvents) }} event yang sedang berlangsung. Pilih event untuk scan:</p>
+        <div class="space-y-2">
+            @foreach($activeEvents as $ev)
+            <button wire:click="selectEvent({{ $ev['id'] }})" class="w-full text-left bg-white hover:bg-yellow-100 border border-yellow-200 rounded-xl px-4 py-3 transition-colors">
+                <span class="font-bold text-slate-800">{{ $ev['judul'] }}</span>
+                <span class="block text-xs text-slate-500 mt-0.5">{{ \Carbon\Carbon::parse($ev['tanggal_mulai'])->format('d/m/Y') }} {{ substr($ev['jam_mulai'],0,5) }} - {{ \Carbon\Carbon::parse($ev['tanggal_selesai'])->format('d/m/Y') }} {{ substr($ev['jam_selesai'],0,5) }}</span>
+            </button>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     <div class="bg-white shadow-sm border border-slate-200 overflow-hidden sm:rounded-2xl">
         <div class="px-4 py-5 sm:px-6 bg-blue-700 text-white text-center">
             <h3 class="text-xl leading-6 font-bold">Sistem Scan KTP</h3>
             <p class="mt-1 text-sm text-blue-100">Petugas Security</p>
+            @if($currentEvent)
+            <div class="mt-2 bg-blue-800 rounded-lg px-3 py-2 inline-block">
+                <p class="text-xs text-blue-200 font-bold uppercase tracking-wider">Event Aktif</p>
+                <p class="text-sm font-bold text-white">{{ $currentEvent['judul'] }}</p>
+            </div>
+            @elseif(!$showEventSelector && count($activeEvents) === 0)
+            <div class="mt-2 bg-orange-600 rounded-lg px-3 py-2 inline-block">
+                <p class="text-xs font-bold text-orange-100">Tidak ada event aktif saat ini</p>
+            </div>
+            @endif
         </div>
 
         <div class="p-6">

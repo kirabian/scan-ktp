@@ -3,7 +3,7 @@
         <h1 class="text-3xl font-bold text-gray-900 mb-6">Dashboard Admin</h1>
 
         <!-- Summary Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div class="bg-white rounded-lg shadow p-6 border-t-4 border-blue-500">
                 <h3 class="text-gray-500 text-sm font-medium">Total Warga Terdaftar</h3>
                 <p class="text-3xl font-bold text-gray-900 mt-2">{{ $totalWarga }}</p>
@@ -18,7 +18,28 @@
                 <h3 class="text-gray-500 text-sm font-medium">Total Kasus Ambil Ganda Hari Ini</h3>
                 <p class="text-3xl font-bold text-gray-900 mt-2">{{ $totalKasusGandaHariIni }}</p>
             </div>
+
+            <div class="bg-white rounded-lg shadow p-6 border-t-4 border-purple-500">
+                <h3 class="text-gray-500 text-sm font-medium">Event Aktif / Total Event</h3>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $activeEvents->count() }} / {{ $totalEvents }}</p>
+            </div>
         </div>
+
+        {{-- Event Stats Hari Ini --}}
+        @if($sedekahPerEvent->count() > 0)
+        <div class="bg-white rounded-lg shadow p-6 mb-8">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Sedekah per Event Hari Ini</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                @foreach($sedekahPerEvent as $spe)
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                    <p class="font-bold text-slate-800">{{ $spe->event->judul ?? 'Tanpa Event' }}</p>
+                    <p class="text-2xl font-extrabold text-blue-600 mt-1">{{ $spe->total }}</p>
+                    <p class="text-xs text-slate-500">penerima hari ini</p>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
 
         <!-- Real-time History Table -->
         <div class="bg-white rounded-lg shadow overflow-hidden" wire:poll.10s>
@@ -31,6 +52,7 @@
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NIK & Nama</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Security</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Keterangan</th>
                         </tr>
@@ -44,6 +66,13 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">{{ $log->warga->nama }}</div>
                                 <div class="text-sm text-gray-500">{{ $log->warga->nik }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                @if($log->event)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{{ $log->event->judul }}</span>
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {{ $log->petugasSecurity->name }}
@@ -63,7 +92,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                            <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                                 Belum ada log histori.
                             </td>
                         </tr>
