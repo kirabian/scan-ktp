@@ -131,12 +131,12 @@
             </div>
         </div>
     @else
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center mb-8 mx-4 sm:mx-0">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 py-16 px-6 text-center mb-8 mx-4 sm:mx-0">
             <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-5 border border-slate-200">
                 <span class="text-slate-400 font-bold text-2xl">?</span>
             </div>
             <h3 class="text-xl font-bold text-slate-800 mb-2">Belum ada event aktif</h3>
-            <p class="text-sm text-slate-500 mb-2">Minta admin untuk membuat event terlebih dahulu untuk memulai pemantauan real-time.</p>
+            <p class="text-sm text-slate-500">Minta admin untuk membuat event terlebih dahulu untuk memulai pemantauan real-time.</p>
         </div>
     @endif
 
