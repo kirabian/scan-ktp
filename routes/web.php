@@ -10,6 +10,7 @@ use App\Livewire\Admin\SedekahList;
 use App\Livewire\Admin\EventManage;
 use App\Livewire\Data\WargaForm;
 use App\Livewire\Security\ScanKtp;
+use App\Livewire\Security\Dashboard as SecurityDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -26,7 +27,7 @@ Route::middleware('auth')->group(function () {
         if ($user->isAdmin()) {
             return redirect()->route('admin.dashboard');
         } elseif ($user->isSecurity()) {
-            return redirect()->route('security.scan');
+            return redirect()->route('security.dashboard');
         } elseif ($user->isData()) {
             return redirect()->route('data.warga');
         }
@@ -52,6 +53,7 @@ Route::middleware('auth')->group(function () {
 
     // Security routes
     Route::middleware('role:admin,security,data')->group(function () {
+        Route::get('/security/dashboard', SecurityDashboard::class)->name('security.dashboard');
         Route::get('/security/scan', ScanKtp::class)->name('security.scan');
     });
 

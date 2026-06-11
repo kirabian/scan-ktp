@@ -7,6 +7,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Carbon\Carbon;
 
+/**
+ * @mixin \Illuminate\Database\Query\Builder
+ * @method static int count()
+ * @method static \Illuminate\Database\Eloquent\Builder|static where(string|\Closure $column, mixed $operator = null, mixed $value = null, string $boolean = 'and')
+ * @method static \Illuminate\Database\Eloquent\Builder|static currentlyActive()
+ * @method static \Illuminate\Database\Eloquent\Builder|static whereDate(string $column, mixed $operator = null, mixed $value = null, string $boolean = 'and')
+ * @method static \Illuminate\Database\Eloquent\Builder|static whereNotNull(string|array $columns, string $boolean = 'and')
+ * @method static \Illuminate\Database\Eloquent\Builder|static whereNull(string|array $columns, string $boolean = 'and')
+ * @method static \Illuminate\Database\Eloquent\Builder|static selectRaw(string $expression, array $bindings = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|static with(string|array $relations)
+ * @method static static find(mixed $id, array $columns = ['*'])
+ */
 class Event extends Model
 {
     protected $fillable = [
@@ -61,12 +73,18 @@ class Event extends Model
         $now = Carbon::now();
         return $query->where('is_active', true)
             ->where(function ($q) use ($now) {
-                $q->whereDate('tanggal_mulai', '<=', $now)
-                  ->whereTime('jam_mulai', '<=', $now);
+                $q->where('tanggal_mulai', '<', $now->toDateString())
+                    ->orWhere(function ($q2) use ($now) {
+                        $q2->whereDate('tanggal_mulai', $now->toDateString())
+                           ->whereTime('jam_mulai', '<=', $now->toTimeString());
+                    });
             })
             ->where(function ($q) use ($now) {
-                $q->whereDate('tanggal_selesai', '>=', $now)
-                  ->whereTime('jam_selesai', '>=', $now);
+                $q->where('tanggal_selesai', '>', $now->toDateString())
+                    ->orWhere(function ($q2) use ($now) {
+                        $q2->whereDate('tanggal_selesai', $now->toDateString())
+                           ->whereTime('jam_selesai', '>=', $now->toTimeString());
+                    });
             });
     }
 

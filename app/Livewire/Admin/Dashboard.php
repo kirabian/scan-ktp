@@ -29,9 +29,13 @@ class Dashboard extends Component
         $totalEvents = Event::count();
         $sedekahPerEvent = HistoriSedekah::selectRaw('event_id, COUNT(*) as total')
             ->whereDate('waktu_ambil', $today)
+            ->whereNotNull('event_id')
             ->groupBy('event_id')
-            ->with('event')
-            ->get();
+            ->get()
+            ->map(function ($item) {
+                $item->event = Event::find($item->event_id);
+                return $item;
+            });
 
         $logHistori = HistoriSedekah::with(['warga', 'petugasSecurity', 'event'])
                                     ->orderBy('waktu_ambil', 'desc')
