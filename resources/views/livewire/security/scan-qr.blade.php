@@ -209,14 +209,14 @@
         function setupQrScanner() {
             if (document.getElementById('qr-reader')) {
                 if (!html5QrCode) {
-                    html5QrCode = new Html5Qrcode("qr-reader");
+                    html5QrCode = new Html5Qrcode("qr-reader", { formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ] });
                 }
                 
                 if (html5QrCode.getState() === 1 && !isStartingCamera) { // 1 = NOT_STARTED
                     isStartingCamera = true;
                     html5QrCode.start(
                         { facingMode: "environment" }, // Paksa pakai kamera belakang
-                        { fps: 10, qrbox: {width: 250, height: 250} },
+                        { fps: 15, qrbox: {width: 250, height: 250} },
                         onScanSuccess
                     ).then(() => {
                         isStartingCamera = false;
