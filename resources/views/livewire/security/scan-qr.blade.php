@@ -62,10 +62,10 @@
     @endif
 
     <div class="bg-white shadow-sm border border-slate-200 overflow-hidden sm:rounded-2xl">
-        <div class="px-4 py-3 sm:px-6 bg-indigo-700 text-white text-center">
+        <div class="px-4 py-3 sm:px-6 bg-blue-700 text-white text-center">
             <h3 class="text-lg leading-6 font-bold">Sistem Scan QR Code</h3>
             @if($currentEvent)
-            <div class="mt-1 bg-indigo-800 rounded-lg px-3 py-1 inline-block">
+            <div class="mt-1 bg-blue-800 rounded-lg px-3 py-1 inline-block">
                 <p class="text-xs font-bold text-white">Event: {{ $currentEvent['judul'] }}</p>
             </div>
             @endif
@@ -89,7 +89,9 @@
                 <div class="text-center" id="scan-container">
                     <p class="mb-3 text-sm text-slate-600 font-medium">Arahkan kamera ke Barcode warga.</p>
                     
-                    <div id="qr-reader" style="width: 100%; border-radius: 12px; overflow: hidden; border: 2px solid #e2e8f0; background: #000;"></div>
+                    <div wire:ignore>
+                        <div id="qr-reader" style="width: 100%; border-radius: 12px; overflow: hidden; border: 2px solid #e2e8f0; background: #000;"></div>
+                    </div>
                     
                     <div class="mt-4 flex items-center justify-center">
                         <div class="border-t border-slate-200 flex-grow"></div>
@@ -100,8 +102,8 @@
                     <form wire:submit.prevent="searchManual" class="mt-4">
                         <label for="manual_nik" class="block text-sm font-bold text-gray-700 text-left mb-2">Input NIK Manual</label>
                         <div class="flex flex-col sm:flex-row gap-3">
-                            <input type="text" wire:model="manualNik" id="manual_nik" placeholder="Ketik 16 digit NIK..." class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2" required>
-                            <button type="submit" class="w-full sm:w-auto bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold shadow-sm hover:bg-indigo-700 transition-colors flex items-center justify-center">
+                            <input type="text" wire:model="manualNik" id="manual_nik" placeholder="Ketik 16 digit NIK..." class="w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2" required>
+                            <button type="submit" class="w-full sm:w-auto bg-blue-600 text-white px-6 py-2 rounded-xl font-bold shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center">
                                 Cari Data
                             </button>
                         </div>
@@ -160,7 +162,7 @@
                             <button wire:click="resetScan" class="flex-1 bg-slate-200 text-slate-800 py-3 rounded-xl font-bold hover:bg-slate-300 transition-colors">
                                 Cancel
                             </button>
-                            <button wire:click="handleMasuk" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold shadow-sm hover:bg-indigo-700 transition-colors">
+                            <button wire:click="handleMasuk" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold shadow-sm hover:bg-blue-700 transition-colors">
                                 Masuk
                             </button>
                         </div>
