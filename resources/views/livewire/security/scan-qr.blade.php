@@ -102,7 +102,7 @@
                     <form wire:submit.prevent="searchManual" class="mt-4">
                         <label for="manual_nik" class="block text-sm font-bold text-gray-700 text-left mb-2">Input NIK Manual</label>
                         <div class="flex flex-col sm:flex-row gap-3">
-                            <input type="text" wire:model="manualNik" id="manual_nik" placeholder="Ketik 16 digit NIK..." class="w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2" required>
+                            <input type="text" wire:model.live="manualNik" id="manual_nik" placeholder="Ketik 16 digit NIK..." class="w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2" required>
                             <button type="submit" class="w-full sm:w-auto bg-blue-600 text-white px-6 py-2 rounded-xl font-bold shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center">
                                 Cari Data
                             </button>
