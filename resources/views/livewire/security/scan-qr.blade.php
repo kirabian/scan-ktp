@@ -85,7 +85,7 @@
                 </div>
             @endif
 
-            <div class="{{ $warga ? 'hidden' : '' }}">
+            <div class="{{ $warga ? 'absolute opacity-0 pointer-events-none -z-10 h-0 overflow-hidden' : 'relative opacity-100 z-10' }}">
                 <div class="text-center" id="scan-container">
                     <p class="mb-3 text-sm text-slate-600 font-medium">Arahkan kamera ke Barcode warga.</p>
                     
@@ -199,7 +199,7 @@
         function onScanSuccess(decodedText, decodedResult) {
             // Pause scanner immediately
             if (html5QrCode && html5QrCode.getState() === 2) { // 2 = SCANNING
-                html5QrCode.pause(true);
+                html5QrCode.pause();
             }
             
             // Dispatch to Livewire
