@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin,security')->group(function () {
         Route::get('/security/dashboard', SecurityDashboard::class)->name('security.dashboard');
         Route::get('/security/scan', ScanKtp::class)->name('security.scan');
+        Route::get('/security/scan-qr', \App\Livewire\Security\ScanQr::class)->name('security.scan-qr');
     });
 
     // Data routes

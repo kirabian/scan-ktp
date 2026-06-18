@@ -89,15 +89,15 @@ class Dashboard extends Component
                     ->orderBy('waktu_ambil', 'desc')
                     ->take(30)
                     ->get();
-                    
+
                 // Hitung Demografi untuk event yang dipilih (berdasarkan warga_id unik)
                 $wargaIds = (clone $q)->select('warga_id')->distinct()->pluck('warga_id');
                 if ($wargaIds->isNotEmpty()) {
                     $wargaHadir = Warga::findMany($wargaIds);
-                    
+
                     // Kelompokkan berdasarkan Desa
                     $demografiDesa = $wargaHadir->groupBy('kel_desa_ktp')->map(fn($group) => $group->count())->sortDesc();
-                    
+
                     // Kelompokkan berdasarkan Usia
                     foreach ($wargaHadir as $w) {
                         $umur = $w->umur;

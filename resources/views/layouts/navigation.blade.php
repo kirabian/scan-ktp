@@ -20,6 +20,10 @@
                     <x-nav-link :href="route('security.scan')" :active="request()->routeIs('security.scan')">
                         {{ __('Scan KTP') }}
                     </x-nav-link>
+
+                    <x-nav-link :href="route('security.scan-qr')" :active="request()->routeIs('security.scan-qr')">
+                        {{ __('Scan QR') }}
+                    </x-nav-link>
                     @endif
 
                     @if(Auth::user()->isAdmin() || Auth::user()->isData())
@@ -108,6 +112,10 @@
 
             <x-responsive-nav-link :href="route('security.scan')" :active="request()->routeIs('security.scan')">
                 {{ __('Scan KTP') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('security.scan-qr')" :active="request()->routeIs('security.scan-qr')">
+                {{ __('Scan QR') }}
             </x-responsive-nav-link>
             @endif
 
