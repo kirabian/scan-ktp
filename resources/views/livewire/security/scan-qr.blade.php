@@ -99,11 +99,11 @@
                         <div class="border-t border-slate-200 flex-grow"></div>
                     </div>
 
-                    <form wire:submit.prevent="searchManual" class="mt-4">
+                    <form wire:submit.prevent="searchManual" class="mt-4" wire:key="manual-search-form">
                         <label for="manual_nik" class="block text-sm font-bold text-gray-700 text-left mb-2">Input NIK Manual</label>
                         <div class="flex flex-col sm:flex-row gap-3">
-                            <input type="text" wire:model.live="manualNik" id="manual_nik" placeholder="Ketik 16 digit NIK..." class="w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2" required>
-                            <button type="submit" class="w-full sm:w-auto bg-blue-600 text-white px-6 py-2 rounded-xl font-bold shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center">
+                            <input type="text" wire:key="manual-nik-input" wire:model.defer="manualNik" id="manual_nik" placeholder="Ketik 16 digit NIK..." class="w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2" required>
+                            <button type="submit" wire:key="manual-nik-btn" class="w-full sm:w-auto bg-blue-600 text-white px-6 py-2 rounded-xl font-bold shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center">
                                 Cari Data
                             </button>
                         </div>
@@ -277,11 +277,9 @@
             Livewire.on('resetCamera', () => { 
                 if (html5QrCode) {
                     try {
-                        if (html5QrCode.getState() === 3) { // PAUSED
-                            html5QrCode.resume();
-                        }
+                        html5QrCode.resume();
                     } catch (e) {
-                        console.error(e);
+                        console.log("Kamera mungkin belum di-pause atau sudah aktif", e);
                     }
                 }
                 setupEmergencyCamera();

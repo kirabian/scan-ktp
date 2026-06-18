@@ -151,7 +151,7 @@ class ScanQr extends Component
 
     public function resetScan()
     {
-        $this->reset(['nik', 'warga', 'errorMessage', 'warningMessage', 'statusPengambilan', 'showDoubleWarning', 'fotoWajahDarurat', 'showConfirmation']);
+        $this->reset(['nik', 'warga', 'errorMessage', 'warningMessage', 'statusPengambilan', 'showDoubleWarning', 'fotoWajahDarurat', 'showConfirmation', 'manualNik']);
         $this->dispatch('resetCamera');
     }
 
