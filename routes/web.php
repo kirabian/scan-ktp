@@ -62,6 +62,7 @@ Route::middleware('auth')->group(function () {
 
     // Data routes
     Route::middleware('role:admin,data')->group(function () {
+        Route::get('/data/dashboard', \App\Livewire\Data\DashboardData::class)->name('data.dashboard');
         Route::get('/data/warga', WargaForm::class)->name('data.warga');
     });
 

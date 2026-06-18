@@ -27,6 +27,9 @@
                     @endif
 
                     @if(Auth::user()->isAdmin() || Auth::user()->isData())
+                    <x-nav-link :href="route('data.dashboard')" :active="request()->routeIs('data.dashboard')">
+                        {{ __('Dashboard Data') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('data.warga')" :active="request()->routeIs('data.warga')">
                         {{ __('Input Data Warga') }}
                     </x-nav-link>
@@ -123,6 +126,9 @@
             @endif
 
             @if(Auth::user()->isAdmin() || Auth::user()->isData())
+            <x-responsive-nav-link :href="route('data.dashboard')" :active="request()->routeIs('data.dashboard')">
+                {{ __('Dashboard Data') }}
+            </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('data.warga')" :active="request()->routeIs('data.warga')">
                 {{ __('Input Data Warga') }}
             </x-responsive-nav-link>

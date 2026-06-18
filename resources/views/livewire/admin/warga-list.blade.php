@@ -7,7 +7,13 @@
             </div>
         @endif
 
-        <div class="flex justify-end items-center mb-4">
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex flex-wrap gap-2 items-center">
+                @if($filter_gender) <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Gender: {{ $filter_gender }} <button wire:click="$set('filter_gender', '')" class="ml-1 text-blue-900 font-bold">&times;</button></span> @endif
+                @if($filter_age) <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">Umur: {{ $filter_age }} Thn <button wire:click="$set('filter_age', '')" class="ml-1 text-green-900 font-bold">&times;</button></span> @endif
+                @if($filter_district) <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">Kecamatan: {{ $filter_district }} <button wire:click="$set('filter_district', '')" class="ml-1 text-purple-900 font-bold">&times;</button></span> @endif
+                @if($filter_village) <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">Desa: {{ $filter_village }} <button wire:click="$set('filter_village', '')" class="ml-1 text-orange-900 font-bold">&times;</button></span> @endif
+            </div>
             <input type="text" wire:model.live="search" placeholder="Cari NIK atau Nama..." class="border-slate-300 rounded-xl shadow-sm focus:ring focus:ring-blue-600 focus:border-blue-600 w-64">
         </div>
 

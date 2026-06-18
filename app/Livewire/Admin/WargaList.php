@@ -6,6 +6,7 @@ use App\Models\Warga;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Url;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Session;
@@ -16,6 +17,15 @@ class WargaList extends Component
     use WithPagination;
 
     public $search = '';
+    
+    #[Url]
+    public $filter_gender = '';
+    #[Url]
+    public $filter_age = '';
+    #[Url]
+    public $filter_district = '';
+    #[Url]
+    public $filter_village = '';
     
     public $selectedWarga = null;
     public $isModalOpen = false;
@@ -48,6 +58,36 @@ class WargaList extends Component
                 $q->where('nik', 'like', $searchTerm)
                   ->orWhere('nama', 'like', $searchTerm);
             });
+        }
+
+        if (!empty($this->filter_gender)) {
+            $query->where('jenis_kelamin', $this->filter_gender);
+        }
+
+        if (!empty($this->filter_district)) {
+            $query->where('kecamatan_ktp', $this->filter_district);
+        }
+
+        if (!empty($this->filter_village)) {
+            $query->where('kel_desa_ktp', $this->filter_village);
+        }
+
+        // Apply age filter in PHP after fetching if $filter_age is set
+        if (!empty($this->filter_age)) {
+            // Since age is computed, we need to filter after fetching
+            // A more efficient way is to compute the year of birth from the age and use SQL, but 
+            // `tempat_tgl_lahir` is a free text string, making SQL extraction hard.
+            // So we'll fetch them, filter, then paginate manually, OR we can fetch all and use collection pagination.
+            // To keep simple pagination, we will fetch IDs of wargas that match the age, then do a whereIn.
+            // But if dataset is huge, this is slow. For now, we'll do the whereIn approach.
+            $allMatchingAgeIds = [];
+            foreach (Warga::select('id', 'tempat_tgl_lahir')->get() as $w) {
+                if ((string)$w->umur === (string)$this->filter_age) {
+                    $allMatchingAgeIds[] = $w->id;
+                }
+            }
+            // Providing all 4 arguments to whereIn to satisfy IDE static analysis
+            $query->whereIn('id', $allMatchingAgeIds, 'and', false);
         }
 
         $wargas = $query->orderBy('created_at', 'desc')->paginate(10);
