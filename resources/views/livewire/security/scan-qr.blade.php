@@ -1,4 +1,4 @@
-<div class="max-w-2xl mx-auto py-6 sm:px-6 lg:px-8">
+<div class="max-w-2xl mx-auto py-2 sm:px-6 lg:px-8">
     <style>
         /* Override default ugly html5-qrcode styles */
         #qr-reader {
@@ -18,13 +18,10 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            display: none !important; /* Hide camera selection entirely since we auto-start */
         }
         #qr-reader__dashboard_section_swaplink {
-            color: #4f46e5 !important;
-            text-decoration: none !important;
-            font-weight: 600 !important;
-            margin-top: 8px;
-            display: inline-block;
+            display: none !important;
         }
         #qr-reader button {
             background-color: #4f46e5 !important;
@@ -43,6 +40,11 @@
             font-size: 14px !important;
             color: #64748b !important;
         }
+        /* Make video fill and hide ugly borders */
+        #qr-reader video {
+            object-fit: cover !important;
+            border-radius: 12px !important;
+        }
     </style>
     {{-- Event Selector (tampil jika ada >1 event aktif) --}}
     @if($showEventSelector && count($activeEvents) > 0)
@@ -60,22 +62,16 @@
     @endif
 
     <div class="bg-white shadow-sm border border-slate-200 overflow-hidden sm:rounded-2xl">
-        <div class="px-4 py-5 sm:px-6 bg-indigo-700 text-white text-center">
-            <h3 class="text-xl leading-6 font-bold">Sistem Scan QR Code</h3>
-            <p class="mt-1 text-sm text-indigo-100">Petugas Security</p>
+        <div class="px-4 py-3 sm:px-6 bg-indigo-700 text-white text-center">
+            <h3 class="text-lg leading-6 font-bold">Sistem Scan QR Code</h3>
             @if($currentEvent)
-            <div class="mt-2 bg-indigo-800 rounded-lg px-3 py-2 inline-block">
-                <p class="text-xs text-indigo-200 font-bold uppercase tracking-wider">Event Aktif</p>
-                <p class="text-sm font-bold text-white">{{ $currentEvent['judul'] }}</p>
-            </div>
-            @elseif(!$showEventSelector && count($activeEvents) === 0)
-            <div class="mt-2 bg-orange-600 rounded-lg px-3 py-2 inline-block">
-                <p class="text-xs font-bold text-orange-100">Tidak ada event aktif saat ini</p>
+            <div class="mt-1 bg-indigo-800 rounded-lg px-3 py-1 inline-block">
+                <p class="text-xs font-bold text-white">Event: {{ $currentEvent['judul'] }}</p>
             </div>
             @endif
         </div>
 
-        <div class="p-6">
+        <div class="p-4 sm:p-6">
             @if (session()->has('success'))
                 <div class="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl relative" role="alert">
                     <span class="block sm:inline font-medium">{{ session('success') }}</span>
@@ -89,42 +85,42 @@
                 </div>
             @endif
 
-            @if (!$warga)
+            <div class="{{ $warga ? 'hidden' : '' }}">
                 <div class="text-center" id="scan-container">
-                    <p class="mb-4 text-slate-600 font-medium">Arahkan kamera ke Barcode warga.</p>
+                    <p class="mb-3 text-sm text-slate-600 font-medium">Arahkan kamera ke Barcode warga.</p>
                     
-                    <div id="qr-reader" style="width: 100%; border-radius: 12px; overflow: hidden; border: 2px solid #e2e8f0;"></div>
+                    <div id="qr-reader" style="width: 100%; border-radius: 12px; overflow: hidden; border: 2px solid #e2e8f0; background: #000;"></div>
                     
-                    <div class="mt-6 flex items-center justify-center">
+                    <div class="mt-4 flex items-center justify-center">
                         <div class="border-t border-slate-200 flex-grow"></div>
                         <span class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Atau</span>
                         <div class="border-t border-slate-200 flex-grow"></div>
                     </div>
 
-                    <form wire:submit.prevent="searchManual" class="mt-6">
+                    <form wire:submit.prevent="searchManual" class="mt-4">
                         <label for="manual_nik" class="block text-sm font-bold text-gray-700 text-left mb-2">Input NIK Manual</label>
                         <div class="flex flex-col sm:flex-row gap-3">
-                            <input type="text" wire:model="manualNik" id="manual_nik" placeholder="Ketik 16 digit NIK..." class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3" required>
-                            <button type="submit" class="w-full sm:w-auto bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold shadow-sm hover:bg-indigo-700 transition-colors flex items-center justify-center">
+                            <input type="text" wire:model="manualNik" id="manual_nik" placeholder="Ketik 16 digit NIK..." class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2" required>
+                            <button type="submit" class="w-full sm:w-auto bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold shadow-sm hover:bg-indigo-700 transition-colors flex items-center justify-center">
                                 Cari Data
                             </button>
                         </div>
                         @error('manualNik') <span class="text-red-500 text-xs font-bold mt-2 block">{{ $message }}</span> @enderror
                     </form>
                 </div>
-            @endif
+            </div>
 
             @if ($warga)
                 <div class="space-y-4">
                     <div class="flex gap-4 mb-4">
-                        <div class="flex-1 bg-slate-100 rounded-lg overflow-hidden h-32 flex items-center justify-center">
+                        <div class="flex-1 bg-slate-100 rounded-lg overflow-hidden h-24 flex items-center justify-center">
                             @if($warga->foto_wajah_path)
                                 <img src="{{ route('secure.image', ['folder' => 'wajah', 'filename' => basename($warga->foto_wajah_path)]) }}" class="max-h-full object-cover">
                             @else
                                 <span class="text-xs text-slate-400">No Wajah</span>
                             @endif
                         </div>
-                        <div class="flex-1 bg-slate-100 rounded-lg overflow-hidden h-32 flex items-center justify-center">
+                        <div class="flex-1 bg-slate-100 rounded-lg overflow-hidden h-24 flex items-center justify-center">
                             @if($warga->foto_ktp_path)
                                 <img src="{{ route('secure.image', ['folder' => 'ktp', 'filename' => basename($warga->foto_ktp_path)]) }}" class="max-h-full object-cover">
                             @else
