@@ -66,7 +66,16 @@ class ScanQr extends Component
 
     public function qrScanned($nik)
     {
-        $this->nik = str_replace(' ', '', trim($nik));
+        $rawNik = str_replace(' ', '', trim($nik));
+        
+        // Coba decrypt jika itu adalah QR Code yang dienkripsi
+        try {
+            $this->nik = \Illuminate\Support\Facades\Crypt::decryptString($rawNik);
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            // Jika gagal decrypt, asumsikan ini adalah NIK mentah (input manual atau QR lama)
+            $this->nik = $rawNik;
+        }
+
         $this->errorMessage = '';
         $this->warningMessage = '';
         $this->statusPengambilan = null;

@@ -20,10 +20,13 @@ class CekNikController extends Controller
             ], 404);
         }
 
+        $data = $warga->toArray();
+        $data['encrypted_nik'] = \Illuminate\Support\Facades\Crypt::encryptString($warga->nik);
+
         return response()->json([
             'success' => true,
             'message' => 'NIK anda sudah terdaftar, silahkan download dan save BARCODE ini pengambilan paket berbagi ketika dibutuhkan',
-            'data' => $warga
+            'data' => $data
         ], 200);
     }
 }
