@@ -284,6 +284,15 @@
                 }
                 setupEmergencyCamera();
             });
+
+            // Pastikan kamera dimatikan saat pindah halaman (mencegah browser selalu minta izin)
+            window.addEventListener('beforeunload', () => {
+                if (html5QrCode) {
+                    try {
+                        html5QrCode.stop();
+                    } catch (e) {}
+                }
+            });
         });
     </script>
 </div>
