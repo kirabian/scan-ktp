@@ -8,6 +8,7 @@ use App\Livewire\Admin\UserManage;
 use App\Livewire\Admin\WargaList;
 use App\Livewire\Admin\SedekahList;
 use App\Livewire\Admin\EventManage;
+use App\Livewire\Admin\DataDownload;
 use App\Livewire\Data\WargaForm;
 use App\Livewire\Security\ScanKtp;
 use App\Livewire\Security\Dashboard as SecurityDashboard;
@@ -45,6 +46,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/users', UserManage::class)->name('admin.users');
         Route::get('/admin/sedekah', SedekahList::class)->name('admin.sedekah-list');
         Route::get('/admin/events', EventManage::class)->name('admin.events');
+        Route::get('/admin/data-download', DataDownload::class)->name('admin.data-download');
     });
 
     Route::middleware('role:admin,data')->group(function () {

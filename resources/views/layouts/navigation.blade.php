@@ -54,6 +54,9 @@
                     <x-nav-link :href="route('admin.sedekah-list')" :active="request()->routeIs('admin.sedekah-list')">
                         {{ __('Data Sedekah') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('admin.data-download')" :active="request()->routeIs('admin.data-download')">
+                        {{ __('Data Download') }}
+                    </x-nav-link>
                     @endif
                 </div>
             </div>
