@@ -194,6 +194,7 @@
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script>
         let html5QrCode = null;
+        let isStartingCamera = false;
 
         function onScanSuccess(decodedText, decodedResult) {
             // Pause scanner immediately
@@ -211,12 +212,18 @@
                     html5QrCode = new Html5Qrcode("qr-reader");
                 }
                 
-                if (html5QrCode.getState() === 1) { // 1 = NOT_STARTED
+                if (html5QrCode.getState() === 1 && !isStartingCamera) { // 1 = NOT_STARTED
+                    isStartingCamera = true;
                     html5QrCode.start(
                         { facingMode: "environment" }, // Paksa pakai kamera belakang
                         { fps: 10, qrbox: {width: 250, height: 250} },
                         onScanSuccess
-                    ).catch(err => console.error(err));
+                    ).then(() => {
+                        isStartingCamera = false;
+                    }).catch(err => {
+                        isStartingCamera = false;
+                        console.error(err);
+                    });
                 } else if (html5QrCode.getState() === 3) { // 3 = PAUSED
                     html5QrCode.resume();
                 }
