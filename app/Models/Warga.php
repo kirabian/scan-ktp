@@ -44,6 +44,8 @@ class Warga extends Model
         'foto_ktp_path',
         'foto_wajah_path',
         'created_by_user_id',
+        'qr_download_count',
+        'last_qr_download_at',
     ];
 
     /**
@@ -55,6 +57,7 @@ class Warga extends Model
     {
         return [
             'is_domisili_sesuai_ktp' => 'boolean',
+            'last_qr_download_at' => 'datetime',
         ];
     }
 

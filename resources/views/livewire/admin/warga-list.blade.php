@@ -21,6 +21,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">L/P</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alamat (KTP)</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No. HP</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Download QR</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
@@ -34,6 +35,11 @@
                                     {{ $warga->alamat_ktp }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $warga->no_wa_hp }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $warga->qr_download_count > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
+                                        {{ $warga->qr_download_count }}x
+                                    </span>
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <button wire:click="viewDetails({{ $warga->id }})" class="text-blue-600 hover:text-blue-900 mr-3 relative">
                                         <span wire:loading.remove wire:target="viewDetails({{ $warga->id }})">Lihat Detail & Foto</span>
@@ -93,6 +99,8 @@
                                         <tr><td class="py-1 font-medium text-gray-600">No WhatsApp/HP</td><td class="py-1">{{ $selectedWarga->no_wa_hp }}</td></tr>
                                         <tr><td class="py-1 font-medium text-gray-600">Diinput Oleh</td><td class="py-1 font-bold text-slate-800">{{ $selectedWarga->createdBy ? $selectedWarga->createdBy->name : 'Sistem/Tidak Diketahui' }}</td></tr>
                                         <tr><td class="py-1 font-medium text-gray-600">Waktu Input</td><td class="py-1 text-slate-800">{{ $selectedWarga->created_at ? $selectedWarga->created_at->translatedFormat('d F Y H:i:s') : '-' }}</td></tr>
+                                        <tr><td class="py-1 font-medium text-gray-600">Download QR</td><td class="py-1 text-slate-800 font-bold text-blue-700">{{ $selectedWarga->qr_download_count }} Kali</td></tr>
+                                        <tr><td class="py-1 font-medium text-gray-600">Terakhir Download</td><td class="py-1 text-slate-800">{{ $selectedWarga->last_qr_download_at ? $selectedWarga->last_qr_download_at->translatedFormat('d F Y H:i:s') : 'Belum Pernah' }}</td></tr>
                                     </tbody>
                                 </table>
 

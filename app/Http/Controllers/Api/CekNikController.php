@@ -25,8 +25,27 @@ class CekNikController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'NIK anda sudah terdaftar, silahkan download dan save BARCODE ini pengambilan paket berbagi ketika dibutuhkan',
+            'message' => 'NIK anda sudah terdaftar, silahkan download dan save BARCODE ini',
             'data' => $data
         ], 200);
+    }
+
+    public function trackDownload(Request $request)
+    {
+        $request->validate([
+            'nik' => 'required|string|size:16',
+        ]);
+
+        $warga = Warga::where('nik', $request->nik)->first();
+
+        if ($warga) {
+            $warga->increment('qr_download_count');
+            $warga->last_qr_download_at = now();
+            $warga->save();
+
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'NIK tidak ditemukan'], 404);
     }
 }
