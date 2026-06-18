@@ -1,4 +1,49 @@
-<div class="max-w-md mx-auto py-6 sm:px-6 lg:px-8">
+<div class="max-w-2xl mx-auto py-6 sm:px-6 lg:px-8">
+    <style>
+        /* Override default ugly html5-qrcode styles */
+        #qr-reader {
+            border: none !important;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        #qr-reader__scan_region {
+            background-color: #f1f5f9;
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #qr-reader__dashboard_section_csr {
+            padding: 16px !important;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        #qr-reader__dashboard_section_swaplink {
+            color: #4f46e5 !important;
+            text-decoration: none !important;
+            font-weight: 600 !important;
+            margin-top: 8px;
+            display: inline-block;
+        }
+        #qr-reader button {
+            background-color: #4f46e5 !important;
+            color: white !important;
+            border: none !important;
+            padding: 10px 20px !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: all 0.2s !important;
+        }
+        #qr-reader button:hover {
+            background-color: #4338ca !important;
+        }
+        #qr-reader__status_span {
+            font-size: 14px !important;
+            color: #64748b !important;
+        }
+    </style>
     {{-- Event Selector (tampil jika ada >1 event aktif) --}}
     @if($showEventSelector && count($activeEvents) > 0)
     <div class="mb-4 bg-yellow-50 border border-yellow-300 rounded-2xl p-4 shadow-sm">
@@ -150,12 +195,12 @@
 
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script>
-        let html5QrcodeScanner = null;
+        let html5QrCode = null;
 
         function onScanSuccess(decodedText, decodedResult) {
             // Pause scanner immediately
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.pause(true);
+            if (html5QrCode && html5QrCode.getState() === 2) { // 2 = SCANNING
+                html5QrCode.pause(true);
             }
             
             // Dispatch to Livewire
@@ -164,15 +209,18 @@
 
         function setupQrScanner() {
             if (document.getElementById('qr-reader')) {
-                if (!html5QrcodeScanner) {
-                    html5QrcodeScanner = new Html5QrcodeScanner(
-                        "qr-reader", 
+                if (!html5QrCode) {
+                    html5QrCode = new Html5Qrcode("qr-reader");
+                }
+                
+                if (html5QrCode.getState() === 1) { // 1 = NOT_STARTED
+                    html5QrCode.start(
+                        { facingMode: "environment" }, // Paksa pakai kamera belakang
                         { fps: 10, qrbox: {width: 250, height: 250} },
-                        /* verbose= */ false
-                    );
-                    html5QrcodeScanner.render(onScanSuccess);
-                } else if (html5QrcodeScanner.getState() === Html5QrcodeScannerState.PAUSED) {
-                    html5QrcodeScanner.resume();
+                        onScanSuccess
+                    ).catch(err => console.error(err));
+                } else if (html5QrCode.getState() === 3) { // 3 = PAUSED
+                    html5QrCode.resume();
                 }
             }
         }
@@ -223,28 +271,16 @@
             setupEmergencyCamera();
             
             Livewire.hook('morph.updated', () => {
-                // If scanner container is back in DOM but uninitialized
-                if (document.getElementById('qr-reader') && !document.getElementById('qr-reader').innerHTML) {
-                    html5QrcodeScanner = new Html5QrcodeScanner(
-                        "qr-reader", 
-                        { fps: 10, qrbox: {width: 250, height: 250} },
-                        false
-                    );
-                    html5QrcodeScanner.render(onScanSuccess);
-                }
+                // Restart if DOM changed heavily
+                setupQrScanner();
                 setupEmergencyCamera();
             });
 
             Livewire.on('resetCamera', () => { 
-                if (html5QrcodeScanner) {
+                if (html5QrCode) {
                     try {
-                        if (html5QrcodeScanner.getState() === 2) { // 2 = PAUSED
-                            html5QrcodeScanner.resume();
-                        } else if (html5QrcodeScanner.getState() === 3) { // 3 = SCANNING
-                            // already scanning
-                        } else {
-                            html5QrcodeScanner.clear();
-                            html5QrcodeScanner.render(onScanSuccess);
+                        if (html5QrCode.getState() === 3) { // PAUSED
+                            html5QrCode.resume();
                         }
                     } catch (e) {
                         console.error(e);
